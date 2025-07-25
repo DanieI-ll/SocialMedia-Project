@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
 import styles from './LoginForm.module.css';
+import { Link } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -26,12 +28,27 @@ export default function LoginForm() {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <h2>Вход</h2>
-      <input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Пароль" value={password} required onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Войти</button>
-      {message && <p>{message}</p>}
-    </form>
+    <div className={styles.container}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div>
+          <img src={logo} alt="" />
+        </div>
+        <input type="email" placeholder="Username, or email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+        <button type="submit">Log in</button>
+        <div className={styles.lineController}>
+          <div className={styles.line}></div> OR <div className={styles.line}></div>
+        </div>
+        {message && <p>{message}</p>}
+        <p className={styles.forgot}>
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
+      </form>
+      <div className={styles.registerForm}>
+        <p>
+          Don't have an account? <Link to="/register"><span>Sign Up</span></Link>
+        </p>
+      </div>
+    </div>
   );
 }

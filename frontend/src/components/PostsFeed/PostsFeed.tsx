@@ -32,22 +32,21 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   useEffect(() => {
     async function fetchPostsAndComments() {
       try {
-        // 1. Получаем посты
+        // Получаем посты с сервера, где уже есть likesCount и likedByUser
         const res = await axios.get<Post[]>('http://localhost:3000/posts', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Посты без комментариев пока
         const postsData = res.data.map((post) => ({
           ...post,
+          comments: [],
           likesCount: typeof post.likesCount === 'number' ? post.likesCount : 0,
           likedByUser: typeof post.likedByUser === 'boolean' ? post.likedByUser : false,
-          comments: [],
         }));
 
         setPosts(postsData);
 
-        // 2. Для каждого поста грузим комментарии параллельно
+        // Параллельно загружаем комментарии
         const commentsPromises = postsData.map((post) =>
           axios
             .get<Comment[]>(`http://localhost:3000/comments/${post._id}`)
@@ -57,7 +56,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
         const commentsResults = await Promise.all(commentsPromises);
 
-        // 3. Добавляем комментарии в посты
         setPosts((prevPosts) =>
           prevPosts.map((post) => {
             const found = commentsResults.find((c) => c.postId === post._id);
@@ -74,14 +72,16 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   async function handleLike(postId: string) {
     try {
-      await axios.post(`http://localhost:3000/likes/${postId}`, null, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post(`http://localhost:3000/likes/${postId}`, null, { headers: { Authorization: `Bearer ${token}` } });
+
+      // Обновляем лайки и статус likedByUser по ответу сервера
       setPosts((posts) =>
         posts.map((post) =>
           post._id === postId
             ? {
                 ...post,
-                likedByUser: !post.likedByUser,
-                likesCount: post.likesCount + (post.likedByUser ? -1 : 1),
+                likedByUser: res.data.liked,
+                likesCount: res.data.likesCount,
               }
             : post,
         ),

@@ -20,36 +20,71 @@ type User = {
   posts: Post[];
 };
 
-const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/djsqoq2zs/upload';
-const CLOUDINARY_UPLOAD_PRESET = 'myNewPreset';
+type Follower = {
+  _id: string;
+  username: string;
+  avatar: string;
+};
 
-export const Profile: React.FC = () => {
+interface ProfileProps {
+  userId?: string; // если нет, значит свой профиль
+}
+
+export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const { token } = useContext(AuthContext);
+
   const [user, setUser] = useState<User | null>(null);
   const [name, setName] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [followers, setFollowers] = useState<Follower[]>([]);
+  const [following, setFollowing] = useState<Follower[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const isOwnProfile = !userId;
 
   useEffect(() => {
     if (!token) return;
 
-    async function fetchUser() {
+    async function fetchProfile() {
       try {
-        const res = await axios.get('http://localhost:3000/api/profile/me', {
+        const url = isOwnProfile ? 'http://localhost:3000/api/profile/me' : `http://localhost:3000/api/profile/${userId}`;
+        const res = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data);
-        setName(res.data.name);
-        setAvatarUrl(res.data.avatar);
+        if (isOwnProfile) {
+          setName(res.data.name);
+          setAvatarUrl(res.data.avatar);
+        }
       } catch (err) {
         setError('Ошибка загрузки профиля');
         console.error(err);
       }
     }
-    fetchUser();
-  }, [token]);
+
+    async function fetchFollowersFollowing() {
+      try {
+        const userParam = isOwnProfile ? 'me' : userId;
+        const [followersRes, followingRes] = await Promise.all([
+          axios.get(`http://localhost:3000/api/followers/${userParam}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`http://localhost:3000/api/following/${userParam}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+        setFollowers(followersRes.data.followers);
+        setFollowing(followingRes.data.following);
+      } catch (err) {
+        console.error('Ошибка загрузки подписчиков/подписок', err);
+      }
+    }
+
+    fetchProfile();
+    fetchFollowersFollowing();
+  }, [token, userId, isOwnProfile]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -59,6 +94,9 @@ export const Profile: React.FC = () => {
 
   const uploadAvatar = async (): Promise<string> => {
     if (!avatarFile) return avatarUrl;
+
+    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/djsqoq2zs/upload';
+    const CLOUDINARY_UPLOAD_PRESET = 'myNewPreset';
 
     const formData = new FormData();
     formData.append('file', avatarFile);
@@ -76,7 +114,6 @@ export const Profile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     const uploadedAvatarUrl = await uploadAvatar();
 
     try {
@@ -100,8 +137,32 @@ export const Profile: React.FC = () => {
       <h2>{user.name}</h2>
       <p>{user.email}</p>
 
+      <h3>Подписчики ({followers.length})</h3>
+      {followers.length === 0 ? (
+        <p>Нет подписчиков</p>
+      ) : (
+        followers.map((follower) => (
+          <div key={follower._id}>
+            <img src={follower.avatar} alt={follower.username} width={30} height={30} />
+            <span>{follower.username}</span>
+          </div>
+        ))
+      )}
+
+      <h3>Подписки ({following.length})</h3>
+      {following.length === 0 ? (
+        <p>Нет подписок</p>
+      ) : (
+        following.map((followed) => (
+          <div key={followed._id}>
+            <img src={followed.avatar} alt={followed.username} width={30} height={30} />
+            <span>{followed.username}</span>
+          </div>
+        ))
+      )}
+
       <h3>Посты пользователя</h3>
-      {!user.posts || user.posts.length === 0 ? (
+      {user.posts.length === 0 ? (
         <p>Посты не найдены.</p>
       ) : (
         user.posts.map((post) => (
@@ -115,16 +176,20 @@ export const Profile: React.FC = () => {
         ))
       )}
 
-      <h3>Редактировать профиль</h3>
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Имя" required />
-        <br />
-        <input type="file" accept="image/*" onChange={handleAvatarChange} />
-        <br />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Сохраняю...' : 'Сохранить'}
-        </button>
-      </form>
+      {isOwnProfile && (
+        <>
+          <h3>Редактировать профиль</h3>
+          <form onSubmit={handleSubmit}>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Имя" required />
+            <br />
+            <input type="file" accept="image/*" onChange={handleAvatarChange} />
+            <br />
+            <button type="submit" disabled={loading}>
+              {loading ? 'Сохраняю...' : 'Сохранить'}
+            </button>
+          </form>
+        </>
+      )}
     </div>
   );
 };

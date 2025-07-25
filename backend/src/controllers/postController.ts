@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { createPost, getAllPosts, getUserPosts, updatePost, deletePost } from '../services/postService';
+import Like from '../db/models/Like';
 
 export const createPostController = async (req: Request, res: Response) => {
   try {
@@ -12,8 +13,27 @@ export const createPostController = async (req: Request, res: Response) => {
 };
 
 export const getPostsController = async (req: Request, res: Response) => {
-  const posts = await getAllPosts();
-  res.json(posts);
+  try {
+    const posts = await getAllPosts();
+    const userId = (req as any).user?.id;
+
+    // добавляем количество лайков и статус лайка пользователя
+    const postsWithLikes = await Promise.all(
+      posts.map(async (post: any) => {
+        const likesCount = await Like.countDocuments({ post: post._id });
+        const likedByUser = userId ? !!(await Like.findOne({ post: post._id, user: userId })) : false;
+        return {
+          ...post.toObject(),
+          likesCount,
+          likedByUser,
+        };
+      })
+    );
+
+    res.json(postsWithLikes);
+  } catch (err) {
+    res.status(500).json({ message: 'Ошибка загрузки постов' });
+  }
 };
 
 export const getUserPostsController = async (req: Request, res: Response) => {
