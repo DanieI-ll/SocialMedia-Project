@@ -4,7 +4,7 @@ import User from '../db/models/User';
 const router = Router();
 
 router.get('/search', async (req: Request, res: Response) => {
-  const query = req.query.query?.toString() || '';
+  const query = req.query.name?.toString() || '';
   if (!query) return res.status(400).json({ message: 'Query не указан' });
 
   const users = await User.find({

@@ -1,15 +1,19 @@
+import { Link } from 'react-router-dom';
+import CreatePostForm from '../../components/CreatePostForm/CreatePostForm';
 import PostsFeed from '../../components/PostsFeed/PostsFeed';
-import { LogoutButton } from '../../components/LogoutButton/LogoutButton';
+import { useState } from 'react';
 
 export default function PostPage() {
   const token = localStorage.getItem('token')!;
+  const [refresh, setRefresh] = useState(false);
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-        <LogoutButton />
-      </div>
-      <PostsFeed token={token} />
+      <CreatePostForm token={token} onPostCreated={() => setRefresh((prev) => !prev)} />
+      <PostsFeed token={token} refresh={refresh} />
+
+      <hr />
+      <Link to="/profile">Перейти в Профиль</Link>
     </div>
   );
 }

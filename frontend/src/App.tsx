@@ -4,12 +4,13 @@ import { AuthContext } from './context/AuthContext/AuthContext';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 import PostsPage from './pages/PostPage/PostPage';
+import { Profile } from './components/Profile/Profile';
+import { UserSearch } from './components/UserSearch/UserSearch';
 
 function PrivateRoute({ children }: { children: React.JSX.Element }) {
   const { token } = useContext(AuthContext);
   return token ? children : <Navigate to="/login" />;
 }
-
 export default function App() {
   return (
     <Router>
@@ -21,6 +22,22 @@ export default function App() {
           element={
             <PrivateRoute>
               <PostsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <PrivateRoute>
+              <UserSearch />
             </PrivateRoute>
           }
         />

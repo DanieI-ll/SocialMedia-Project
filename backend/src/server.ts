@@ -22,7 +22,7 @@ const startServer = (): void => {
   app.use('/posts', postRoutes);
   app.use('/likes', likeRoutes);
   app.use('/comments', commentRoutes);
-  app.use('/', searchRoutes);
+  app.use('/api/users', searchRoutes);
   app.use('/', followRoutes);
   app.use('/notifications', notificationRoutes);
   app.use('/', userRoutes);
