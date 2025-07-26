@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
 
+import { Link } from 'react-router-dom';
+import logo from '../../assets/logo.png';
+
 import styles from './RegisterForm.module.css';
 
 interface RegisterFormProps {
@@ -31,14 +34,40 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <h2>Регистрация</h2>
-      <input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-      <input type="text" placeholder="Username" value={username} required onChange={(e) => setUsername(e.target.value)} />
-      <input type="text" placeholder="Name" value={name} required onChange={(e) => setName(e.target.value)} />
-      <input type="password" placeholder="Пароль" value={password} required onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Зарегистрироваться</button>
-      {message && <p>{message}</p>}
-    </form>
+    <div>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div>
+          <img src={logo} alt="logo" />
+        </div>
+        <h2>Sign up to see photos and videos from your friends.</h2>
+        <div className={styles.inputs}>
+          <input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+          <input type="text" placeholder="Full Name" value={name} required onChange={(e) => setName(e.target.value)} />
+          <input type="text" placeholder="Username" value={username} required onChange={(e) => setUsername(e.target.value)} />
+          <input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        <div className={styles.registerText}>
+          <p>
+            People who use our service may have uploaded your contact information to Instagram. <a href="#">Learn More</a>
+          </p>
+        </div>
+
+        <div className={styles.registerText}>
+          <p>
+            By signing up, you agree to our <a href="#">Terms,</a> <a href="#">Privacy Policy</a> and <a href="#">Cookies.</a>
+          </p>
+        </div>
+        <button type="submit">Sign Up</button>
+        {message && <p>{message}</p>}
+      </form>
+      <div className={styles.haveAccount}>
+        <p>
+          Have an account?{' '}
+          <Link to="/login">
+            <span>Log in</span>
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

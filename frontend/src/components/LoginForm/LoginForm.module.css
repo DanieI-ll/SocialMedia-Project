@@ -19,6 +19,13 @@ form input {
   border-radius: 3px;
   width: 268px;
   height: 38px;
+  padding: 8px;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 button {
@@ -28,6 +35,9 @@ button {
   background-color: #0095f6 !important;
   font-weight: 600 !important;
   font-size: 14px !important;
+  color: #fff;
+  border: none;
+  margin-top: 14px;
 }
 
 .line {
@@ -84,4 +94,8 @@ button {
   text-align: center;
   color: #0095f6;
   text-decoration: none;
+}
+
+.imgBlock {
+  margin-top: 30.5px;
 }

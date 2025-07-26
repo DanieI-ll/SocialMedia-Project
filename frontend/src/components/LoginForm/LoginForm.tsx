@@ -30,11 +30,13 @@ export default function LoginForm() {
   return (
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <div>
+        <div className={styles.imgBlock}>
           <img src={logo} alt="" />
         </div>
-        <input type="email" placeholder="Username, or email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+        <div className={styles.inputs}>
+          <input type="email" placeholder="Username, or email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+          <input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+        </div>
         <button type="submit">Log in</button>
         <div className={styles.lineController}>
           <div className={styles.line}></div> OR <div className={styles.line}></div>
@@ -46,7 +48,10 @@ export default function LoginForm() {
       </form>
       <div className={styles.registerForm}>
         <p>
-          Don't have an account? <Link to="/register"><span>Sign Up</span></Link>
+          Don't have an account?{' '}
+          <Link to="/register">
+            <span>Sign Up</span>
+          </Link>
         </p>
       </div>
     </div>

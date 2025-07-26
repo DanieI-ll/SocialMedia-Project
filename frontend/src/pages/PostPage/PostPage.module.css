@@ -1,0 +1,31 @@
+.mainContainer{
+  display: flex;
+}
+
+.navbar {
+  width: 245px;
+  border-right: 1px solid #dbdbdb;
+}
+
+.imgContainer {
+  margin-left: 25px;
+  margin-top: 28px;
+}
+
+.navbarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  margin-left: 25px;
+  margin-top: 30px;
+}
+
+.element {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.element:last-child {
+  margin-top: 59px;
+}

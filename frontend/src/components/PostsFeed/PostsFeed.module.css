@@ -1,20 +1,25 @@
 .feed {
-  max-width: 600px;
-  margin: 20px auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-left: 104px;
+  margin-top: 58px;
+  gap: 39px;
 }
 
 .post {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  background: #fff;
+  border-bottom: 0.86px solid #dbdbdb;
+  width: 404px;
+  height: 716px;
 }
 
-h3 {
-  margin: 0 0 10px;
+.postData {
+  display: flex;
+  margin-bottom: 12px;
 }
 
-p {
-  margin: 0;
+.avatarUsername {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 129%;
+  color: #000;
 }

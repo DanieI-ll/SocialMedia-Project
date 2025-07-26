@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+import like from '../../assets/like.svg';
+import liked from '../../assets/liked.svg';
+import comment from '../../assets/comment.svg';
+
 import styles from './PostsFeed.module.css';
 
 interface Comment {
@@ -73,20 +77,20 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   async function handleLike(postId: string) {
     try {
       const res = await axios.post(`http://localhost:3000/likes/${postId}`, null, { headers: { Authorization: `Bearer ${token}` } });
-
-      // Обновляем лайки и статус likedByUser по ответу сервера
+      console.log('like response:', res.data); // burada bak
       setPosts((posts) =>
         posts.map((post) =>
           post._id === postId
             ? {
                 ...post,
-                likedByUser: res.data.liked,
+                likedByUser: res.data.liked, // теперь backend отдаёт liked
                 likesCount: res.data.likesCount,
               }
             : post,
         ),
       );
-    } catch {
+    } catch (err) {
+      console.log(err);
       setError('Ошибка при лайке');
     }
   }
@@ -107,21 +111,34 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   if (error) return <p>{error}</p>;
 
+  console.log('PostsFeed rendered');
+
   return (
     <div className={styles.feed}>
-      <h2>Лента постов</h2>
       {posts.length === 0 && <p>Посты не найдены.</p>}
       {posts.map((post) => (
         <div key={post._id} className={styles.post}>
-          <p>
-            <b>Автор:</b> {post.author.username}
-          </p>
-          <p>{post.description}</p>
-          {post.image && <img src={post.image} alt="post" style={{ maxWidth: '300px' }} />}
+          <div className={styles.postData}>
+            {/* <img src="" alt="" /> AVATAR */}
+            <p className={styles.avatarUsername}>{post.author.username}</p>
+            <p>• 2 wek •</p>
+            <p> follow </p>
+          </div>
+          {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px' }} />}
 
-          <button onClick={() => handleLike(post._id)}>
-            {post.likedByUser ? '❤️' : '🤍'} {post.likesCount}
-          </button>
+          <div className={styles.likeCommentBlock}>
+            <img
+              src={post.likedByUser ? liked : like}
+              alt="like"
+              onClick={() => {
+                handleLike(post._id);
+              }}
+            />
+            <img src={comment} alt="comment" />
+            <p>{post.likesCount} likes</p>
+          </div>
+
+          <p>{post.description}</p>
 
           <div className={styles.comments}>
             <h4>Комментарии</h4>

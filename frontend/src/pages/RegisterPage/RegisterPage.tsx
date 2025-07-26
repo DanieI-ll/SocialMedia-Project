@@ -1,5 +1,6 @@
 import RegisterForm from '../../components/RegisterForm/RegisterForm';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import styles from './RegisterPage.module.css'
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -10,11 +11,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
+    <div className={styles.div}>
       <RegisterForm onSuccess={handleRegisterSuccess} />
-      <p>
-        Уже есть аккаунт? <Link to="/login">Войти</Link>
-      </p>
     </div>
   );
 }
