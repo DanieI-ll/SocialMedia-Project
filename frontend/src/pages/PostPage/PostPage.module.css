@@ -1,4 +1,4 @@
-.mainContainer{
+.mainContainer {
   display: flex;
 }
 
@@ -28,4 +28,24 @@
 
 .element:last-child {
   margin-top: 59px;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileText {
+  color: black;
+}
+
+@media (min-width: 1440px) {
+  .postBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
 }

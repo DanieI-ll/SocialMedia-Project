@@ -1,0 +1,30 @@
+.footer {
+  margin-top: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footerElements {
+  display: flex;
+  gap: 35px;
+}
+
+.footerElements li {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  color: #737373;
+}
+
+.footerNavbar p {
+  text-align: center;
+  margin-top: 50px;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  color: #737373;
+  margin-bottom: 60px;
+}

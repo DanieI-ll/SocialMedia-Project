@@ -9,7 +9,7 @@
 .post {
   border-bottom: 0.86px solid #dbdbdb;
   width: 404px;
-  height: 716px;
+  padding-bottom: 35px;
 }
 
 .postData {
@@ -22,4 +22,110 @@
   font-size: 12px;
   line-height: 129%;
   color: #000;
+}
+
+.likeBlock {
+  display: flex;
+  gap: 13px;
+  margin-top: 10px;
+}
+
+.likeCommentBlock p {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 129%;
+  color: #000;
+}
+
+.description {
+  display: flex;
+  margin-top: 8px;
+}
+
+.author {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 129%;
+  color: #000;
+}
+
+.descriptionPost {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 129%;
+  color: #000;
+  margin-left: 10px;
+}
+
+.comments {
+  margin-top: 16px;
+  display: flex;
+}
+
+.comments p {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 129%;
+  color: #000;
+}
+
+.seeMoreBtn {
+  font-weight: 400 !important;
+  font-size: 12px !important;
+  line-height: 129% !important;
+  color: #737373;
+  background-color: #fff !important;
+  width: 102px !important;
+  height: 10px !important;
+  cursor: pointer;
+  padding: 0px !important;
+  margin-top: 0px !important;
+  margin-top: 7px !important;
+}
+
+.seeAllContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 104px;
+  margin-top: 28px;
+}
+
+.mainText {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 129%;
+  text-align: center;
+  color: #000;
+  margin-top: 10px;
+}
+
+.secondText {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 129%;
+  text-align: center;
+  color: #737373;
+  margin-top: 4px;
+}
+
+@media (min-width: 1440px) {
+  .feed {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-left: 10px;
+    margin-top: 58px;
+    gap: 0px;
+  }
+
+  .seeAllContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+    margin-top: 28px;
+  }
 }
