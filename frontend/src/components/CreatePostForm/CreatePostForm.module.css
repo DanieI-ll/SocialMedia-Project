@@ -1,0 +1,65 @@
+.createHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-top: 11px;
+}
+
+.createHeader h3 {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 150%;
+  text-align: center;
+  color: #000;
+  width: 681px;
+  position: relative;
+}
+
+.dropArea {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  margin-bottom: 15px;
+  width: 573px;
+  height: 519px;
+}
+.dropArea.dragOver {
+  border-color: #007bff;
+  background: rgba(0, 123, 255, 0.05);
+}
+.dropArea input {
+  display: none;
+}
+
+.shareButton {
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+
+  font-family: var(--font-family);
+  font-weight: 400 !important;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: right;
+  color: #0095f6;
+  position: absolute;
+  right: 0;
+}
+
+.flexElements {
+  display: flex;
+}
+
+.flexElements textarea {
+  width: 339px;
+  height: 168px;
+  resize: none;
+}

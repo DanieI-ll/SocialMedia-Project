@@ -1,0 +1,25 @@
+.mainContainer {
+  margin-top: 85px;
+  margin-left: 123px;
+}
+
+.firstGrid {
+  display: flex;
+  
+}
+
+.fourGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.secondGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 4px;
+}
+
+.bigGrid {
+  margin-left: 4px;
+}

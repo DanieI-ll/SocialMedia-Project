@@ -5,7 +5,7 @@ import { upload } from '../middlewares/upload';
 
 const router = Router();
 
-router.post('/', authMiddleware, upload.single('image'), createPostController);
+router.post('/create', authMiddleware, upload.single('image'), createPostController);
 router.get('/', getPostsController);
 router.get('/user/:userId', getUserPostsController);
 router.put('/:postId', authMiddleware, upload.single('image'), updatePostController);

@@ -1,11 +1,12 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
+import styles from './UserSearch.module.css';
 
 interface User {
   _id: string;
   name: string;
-  username: string; // ekledik
+  username: string;
 }
 
 export const UserSearch: React.FC = () => {
@@ -25,13 +26,35 @@ export const UserSearch: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const clearInput = () => {
+    setQuery('');
+    setResults([]);
+  };
+
   return (
     <div>
-      <h3>Поиск пользователей</h3>
-      <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Введите имя" />
-      <button onClick={handleSearch}>Искать</button>
+      <div className={styles.inputWrapper}>
+        <input className={styles.searchInput} type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" onKeyDown={handleKeyDown} />
+        <a
+          href="#"
+          className={styles.clearLink}
+          onClick={(e) => {
+            e.preventDefault();
+            clearInput();
+          }}
+          aria-label="Clear search"
+        >
+          ×
+        </a>
+      </div>
 
-      <ul>
+      <ul className={styles.userResult}>
         {results.map((user) => (
           <li key={user._id}>
             {user.name} ({user.username})

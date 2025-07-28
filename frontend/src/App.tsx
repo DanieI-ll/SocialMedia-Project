@@ -6,22 +6,31 @@ import RegisterPage from './pages/RegisterPage/RegisterPage';
 import PostsPage from './pages/PostPage/PostPage';
 import { Profile } from './components/Profile/Profile';
 import { UserSearch } from './components/UserSearch/UserSearch';
+import Layout from './components/Layout/Layout';
+import CreatePostForm from './components/CreatePostForm/CreatePostForm';
+import Explore from './components/Explore/Explore';
 
 function PrivateRoute({ children }: { children: React.JSX.Element }) {
   const { token } = useContext(AuthContext);
   return token ? children : <Navigate to="/login" />;
 }
+
 export default function App() {
+  const { token } = useContext(AuthContext); // <--- теперь доступно в App
+
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
         <Route
           path="/posts"
           element={
             <PrivateRoute>
-              <PostsPage />
+              <Layout>
+                <PostsPage />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -29,7 +38,9 @@ export default function App() {
           path="/profile"
           element={
             <PrivateRoute>
-              <Profile />
+              <Layout>
+                <Profile />
+              </Layout>
             </PrivateRoute>
           }
         />
@@ -37,10 +48,40 @@ export default function App() {
           path="/search"
           element={
             <PrivateRoute>
-              <UserSearch />
+              <Layout>
+                <UserSearch />
+              </Layout>
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/explore"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Explore />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/create"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CreatePostForm
+                  token={token || ''} // теперь не undefined
+                  onPostCreated={() => {
+                    /* обновление или пустая функция */
+                  }}
+                />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

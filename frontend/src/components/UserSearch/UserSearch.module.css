@@ -1,0 +1,50 @@
+.searchInput {
+  width: 364px;
+  height: 40px;
+
+  border-radius: 8px;
+  width: 364px;
+  height: 40px;
+  background: #efefef;
+
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 16px;
+  color: #737373;
+  border: none;
+  padding-left: 16px;
+  margin-top: 39px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  padding-right: 30px; /* место для крестика */
+}
+
+.clearLink {
+  position: absolute;
+  right: 8px;
+  top: 75%;
+  left: 94%;
+  transform: translateY(-50%);
+  text-decoration: none;
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
+  user-select: none;
+}
+
+.userResult {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 129%;
+  color: #000;
+  margin-top: 41px;
+}

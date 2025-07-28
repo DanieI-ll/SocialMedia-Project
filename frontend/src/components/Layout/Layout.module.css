@@ -1,0 +1,169 @@
+.mainContainer {
+  display: flex;
+}
+
+.navbar {
+  width: 245px;
+  border-right: 1px solid #dbdbdb;
+  padding-right: 90px;
+}
+
+.imgContainer {
+  margin-left: 25px;
+  margin-top: 28px;
+}
+
+.navbarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  margin-left: 25px;
+  margin-top: 30px;
+}
+
+.element {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.element:last-child {
+  margin-top: 59px;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileText {
+  color: black;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Kayan panel */
+.searchPanel {
+  position: fixed;
+  top: 0;
+  left: 245px; /* navbar genişliği */
+  width: 400px;
+  height: 100%;
+  background: #fff;
+  border-right: 1px solid #dbdbdb;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Arkadaki flu alan */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 245px; /* сдвинуто вправо на ширину navbar */
+  width: calc(100% - 245px); /* ширина - navbar */
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+/* Panel üstü */
+.searchHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.searchHeader h3 {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 125%;
+  color: #000;
+}
+
+.searchHeader a {
+  background: none !important;
+  border: none !important;
+  font-size: 18px !important;
+  cursor: pointer;
+}
+
+.element {
+  cursor: pointer;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.searchRecent p {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.searchUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.searchUser img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.createModal {
+  position: fixed;
+  top: 50%;
+  left: calc(50% + 122.5px); /* 245/2 = 122.5 */
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  width: 913px;
+  height: 564px;
+}
+
+.closeBtn {
+  font-size: 24px;
+  color: #333;
+  cursor: pointer;
+  text-decoration: none;
+}
+.closeBtn:hover {
+  color: #000;
+}
