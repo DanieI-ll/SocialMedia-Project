@@ -6,7 +6,9 @@ const router = Router();
 
 router.post('/follow/:userId', authMiddleware, followController);
 router.delete('/unfollow/:userId', authMiddleware, unfollowController);
-router.get('/followers/:userId', getFollowersController);
-router.get('/following/:userId', getFollowingController);
+
+// Теперь "me" тоже обрабатывается, и только авторизованные могут его использовать
+router.get('/followers/:userId', authMiddleware, getFollowersController);
+router.get('/following/:userId', authMiddleware, getFollowingController);
 
 export default router;

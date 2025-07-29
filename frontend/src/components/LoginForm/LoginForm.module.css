@@ -38,6 +38,12 @@ button {
   color: #fff;
   border: none;
   margin-top: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.buttonHover:hover {
+  background-color: #0065c4 !important;
 }
 
 .line {
@@ -66,7 +72,7 @@ button {
   line-height: 133%;
   text-align: center;
   color: #00376b;
-  margin-top: 69px;
+  margin-top: 65px;
 }
 
 .registerForm {
@@ -94,8 +100,23 @@ button {
   text-align: center;
   color: #0095f6;
   text-decoration: none;
+  transition: 0.3s;
+}
+
+.registerForm span:hover {
+  color: #0065c4;
 }
 
 .imgBlock {
   margin-top: 30.5px;
+}
+
+.errorMsg {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  color: #ff0014;
+  position: absolute;
+  bottom: 36%;
 }

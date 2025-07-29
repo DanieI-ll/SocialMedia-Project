@@ -56,14 +56,6 @@
   height: 30px;
 }
 
-.registerText a {
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 133%;
-  text-align: center;
-  color: #00376b;
-}
-
 .form button {
   border-radius: 8px !important;
   width: 268px !important;
@@ -75,7 +67,12 @@
   color: #fff !important;
   background-color: #0095f6 !important;
   border: none;
-  margin-top: 26px;
+  margin-top: 15px;
+  transition: 0.3s;
+}
+
+.hoverBtn:hover {
+  background-color: #0065c4 !important;
 }
 
 .haveAccount {
@@ -101,4 +98,30 @@
   line-height: 129%;
   text-align: center;
   color: #0095f6;
+  transition: 0.3s;
+}
+
+.hoverSpan:hover {
+  color: #0065c4 !important;
+}
+
+.error {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  color: #ff0014;
+}
+
+.link {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  text-align: center;
+  color: #00376b;
+}
+
+.link:visited {
+    color: #00376b !important;
 }

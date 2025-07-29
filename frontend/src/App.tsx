@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from './context/AuthContext/AuthContext';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
@@ -9,6 +9,13 @@ import { UserSearch } from './components/UserSearch/UserSearch';
 import Layout from './components/Layout/Layout';
 import CreatePostForm from './components/CreatePostForm/CreatePostForm';
 import Explore from './components/Explore/Explore';
+import EditProfilePage from './pages/EditProfilePage/EditProfilePage';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
+import Cookies from './pages/StaticPages/Cookies/Cookies';
+import LearnMore from './pages/StaticPages/LearnMore/LearnMore';
+import PrivacyPolicy from './pages/StaticPages/PrivacyPolicy/PrivacyPolicy';
+import Terms from './pages/StaticPages/Terms/Terms';
+import axios from 'axios';
 
 function PrivateRoute({ children }: { children: React.JSX.Element }) {
   const { token } = useContext(AuthContext);
@@ -16,13 +23,30 @@ function PrivateRoute({ children }: { children: React.JSX.Element }) {
 }
 
 export default function App() {
-  const { token } = useContext(AuthContext); // <--- теперь доступно в App
+  const { token } = useContext(AuthContext);
+  const [avatar, setAvatar] = useState('');
+  const [username, setUsername] = useState('');
+
+  // Профиль загружаем один раз после логина
+  useEffect(() => {
+    if (!token) return;
+    axios
+      .get('http://localhost:3000/api/profile/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setAvatar(res.data.avatar || '');
+        setUsername(res.data.username || '');
+      })
+      .catch((err) => console.error('Ошибка загрузки профиля', err));
+  }, [token]);
 
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot" element={<ForgotPassword />} />
 
         <Route
           path="/posts"
@@ -54,7 +78,6 @@ export default function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/explore"
           element={
@@ -65,22 +88,31 @@ export default function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/create"
           element={
             <PrivateRoute>
               <Layout>
-                <CreatePostForm
-                  token={token || ''} // теперь не undefined
-                  onPostCreated={() => {
-                    /* обновление или пустая функция */
-                  }}
-                />
+                <CreatePostForm token={token || ''} onPostCreated={() => {}} avatar={avatar} username={username} />
               </Layout>
             </PrivateRoute>
           }
         />
+        <Route
+          path="/edit-profile"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <EditProfilePage />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/learn-more" element={<LearnMore />} />
 
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

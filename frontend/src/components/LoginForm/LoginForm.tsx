@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext/AuthContext';
 import styles from './LoginForm.module.css';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import ForgotPassword from '../../pages/ForgotPassword/ForgotPassword';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -23,7 +24,7 @@ export default function LoginForm() {
       login(res.data.token); // сохраняем токен в контекст
       navigate('/posts'); // переходим на ленту
     } catch {
-      setMessage('Ошибка входа');
+      setMessage('Wrong password, username or email');
     }
   };
 
@@ -31,26 +32,26 @@ export default function LoginForm() {
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.imgBlock}>
-          <img src={logo} alt="" />
+          <img src={logo} alt="logo" />
         </div>
         <div className={styles.inputs}>
           <input type="email" placeholder="Username, or email" value={email} required onChange={(e) => setEmail(e.target.value)} />
           <input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />
         </div>
-        <button type="submit">Log in</button>
+        <button className={styles.buttonHover} type="submit">Log in</button>
         <div className={styles.lineController}>
           <div className={styles.line}></div> OR <div className={styles.line}></div>
         </div>
-        {message && <p>{message}</p>}
+        {message && <p className={styles.errorMsg}>{message}</p>}
         <p className={styles.forgot}>
-          <Link to="/forgot-password">Forgot password?</Link>
+          <Link to="/forgot">Forgot password?</Link>
         </p>
       </form>
       <div className={styles.registerForm}>
         <p>
           Don't have an account?{' '}
           <Link to="/register">
-            <span>Sign Up</span>
+            <span >Sign Up</span>
           </Link>
         </p>
       </div>

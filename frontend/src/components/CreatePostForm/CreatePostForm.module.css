@@ -18,8 +18,7 @@
 }
 
 .dropArea {
-  border: 2px dashed #ccc;
-  border-radius: 10px;
+  border: 1px solid #ccc;
   padding: 20px;
   text-align: center;
   cursor: pointer;
@@ -27,6 +26,9 @@
   margin-bottom: 15px;
   width: 573px;
   height: 519px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .dropArea.dragOver {
   border-color: #007bff;
@@ -60,6 +62,60 @@
 
 .flexElements textarea {
   width: 339px;
-  height: 168px;
+  height: 268px;
   resize: none;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  color: #000;
+  padding: 10px;
+  padding-top: 50px;
+}
+
+.textareaWrapper {
+  position: relative;
+}
+
+.emojiBtn {
+  position: absolute;
+  top: 44%;
+  left: 4%;
+}
+
+.charCount {
+  position: absolute;
+  top: 44.5%;
+  left: 80%;
+
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  text-align: right;
+  color: #c7c7c7;
+}
+
+.userInfo img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.relative {
+  top: 9.5%;
+  left: 64%;
+  z-index: 999;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.relative p {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 129%;
+  color: #000;
 }

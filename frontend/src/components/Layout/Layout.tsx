@@ -1,8 +1,12 @@
 import { useEffect, useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // useLocation eklendi
 import Footer from '../Footer/Footer';
 import styles from './Layout.module.css';
 import navbarLogo from '../../assets/navbarLogo.png';
+import ActiveHome from '../../assets/ActiveHome.svg';
+import ActiveSearch from '../../assets/ActiveSearch.svg';
+import ActiveExplore from '../../assets/ActiveExplore.svg';
+import ActiveNotification from '../../assets/ActiveNotification.svg';
 import home from '../../assets/home.svg';
 import search from '../../assets/search.svg';
 import explore from '../../assets/explore.svg';
@@ -22,8 +26,11 @@ export default function Layout({ children }: LayoutProps) {
   const token = localStorage.getItem('token')!;
   const { token: contextToken } = useContext(AuthContext);
   const [avatar, setAvatar] = useState('');
+  const [username, setUsername] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const location = useLocation(); // aktif sayfayı almak için
 
   useEffect(() => {
     async function fetchProfile() {
@@ -32,6 +39,7 @@ export default function Layout({ children }: LayoutProps) {
           headers: { Authorization: `Bearer ${contextToken || token}` },
         });
         setAvatar(res.data.avatar);
+        setUsername(res.data.username);
       } catch (err) {
         console.error('Ошибка загрузки аватара', err);
       }
@@ -47,17 +55,17 @@ export default function Layout({ children }: LayoutProps) {
         </div>
         <div className={styles.navbarContainer}>
           <Link to="/posts" className={styles.element}>
-            <img src={home} alt="home" />
+            <img src={location.pathname === '/posts' ? ActiveHome : home} alt="home" />
             <p>Home</p>
           </Link>
 
           <a className={styles.element} onClick={() => setIsSearchOpen(true)}>
-            <img src={search} alt="search" />
+            <img src={isSearchOpen ? ActiveSearch : search} alt="search" />
             <p>Search</p>
           </a>
 
           <Link to="/explore" className={styles.element}>
-            <img src={explore} alt="explore" />
+            <img src={location.pathname === '/explore' ? ActiveExplore : explore} alt="explore" />
             <p>Explore</p>
           </Link>
           <Link to="/messenger" className={styles.element}>
@@ -65,7 +73,7 @@ export default function Layout({ children }: LayoutProps) {
             <p>Messenger</p>
           </Link>
           <Link to="/notifications" className={styles.element}>
-            <img src={notification} alt="notification" />
+            <img src={location.pathname === '/notifications' ? ActiveNotification : notification} alt="notification" />
             <p>Notification</p>
           </Link>
           <a className={styles.element} onClick={() => setIsCreateOpen(true)}>
@@ -102,7 +110,7 @@ export default function Layout({ children }: LayoutProps) {
         <>
           <div className={styles.overlay} onClick={() => setIsCreateOpen(false)} />
           <div className={styles.createModal}>
-            <CreatePostForm token={contextToken || token} onPostCreated={() => setIsCreateOpen(false)} />
+            <CreatePostForm token={contextToken || token} onPostCreated={() => setIsCreateOpen(false)} avatar={avatar} username={username} />
           </div>
         </>
       )}

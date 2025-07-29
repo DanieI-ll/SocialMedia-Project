@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
+import { Link } from 'react-router-dom';
+
+import styles from './Profile.module.css';
 
 type Post = {
   _id: string;
@@ -12,7 +15,7 @@ type Post = {
 };
 
 type User = {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   avatar: string;
@@ -27,7 +30,7 @@ type Follower = {
 };
 
 interface ProfileProps {
-  userId?: string; // если нет, значит свой профиль
+  userId?: string;
 }
 
 export const Profile: React.FC<ProfileProps> = ({ userId }) => {
@@ -50,7 +53,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
     async function fetchProfile() {
       try {
         const url = isOwnProfile ? 'http://localhost:3000/api/profile/me' : `http://localhost:3000/api/profile/${userId}`;
-        const res = await axios.get(url, {
+        const res = await axios.get<User>(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data);
@@ -68,10 +71,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
       try {
         const userParam = isOwnProfile ? 'me' : userId;
         const [followersRes, followingRes] = await Promise.all([
-          axios.get(`http://localhost:3000/api/followers/${userParam}`, {
+          axios.get<{ followers: Follower[] }>(`http://localhost:3000/api/followers/${userParam}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`http://localhost:3000/api/following/${userParam}`, {
+          axios.get<{ following: Follower[] }>(`http://localhost:3000/api/following/${userParam}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -122,6 +125,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
       setAvatarUrl(uploadedAvatarUrl);
     } catch (err) {
       console.error('Ошибка обновления профиля:', err);
+      setError('Ошибка обновления профиля');
     } finally {
       setLoading(false);
     }
@@ -131,65 +135,61 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   if (!user) return <div>Загрузка...</div>;
 
   return (
-    <div>
-      <h1>Профиль</h1>
-      <img src={avatarUrl || undefined} alt="Аватар" width={100} height={100} />
-      <h2>{user.name}</h2>
-      <p>{user.email}</p>
-
-      <h3>Подписчики ({followers.length})</h3>
-      {followers.length === 0 ? (
-        <p>Нет подписчиков</p>
-      ) : (
-        followers.map((follower) => (
-          <div key={follower._id}>
-            <img src={follower.avatar} alt={follower.username} width={30} height={30} />
-            <span>{follower.username}</span>
+    <div className={styles.mainContainer}>
+      <div className={styles.profileContainer}>
+        <div className={styles.avatarContainer}>
+          <img src={avatarUrl || user.avatar} alt="Аватар" />
+        </div>
+        <div className={styles.mainUsernameContainer}>
+          <div className={styles.usernameContainer}>
+            <h2>{user.username}</h2>
+            {isOwnProfile && (
+              <Link to="/edit-profile" className={styles.link}>
+                Edit Profile
+              </Link>
+            )}
           </div>
-        ))
-      )}
 
-      <h3>Подписки ({following.length})</h3>
-      {following.length === 0 ? (
-        <p>Нет подписок</p>
-      ) : (
-        following.map((followed) => (
-          <div key={followed._id}>
-            <img src={followed.avatar} alt={followed.username} width={30} height={30} />
-            <span>{followed.username}</span>
+          <div className={styles.userInfoContainer}>
+            <div className={styles.postContainer}>
+              <p className={styles.numberPost}>{user.posts.length}</p>
+              <p className={styles.postText}>posts</p>
+            </div>
+
+            <div className={styles.postContainer}>
+              <h3 className={styles.numberPost}>{followers.length}</h3>
+              <p className={styles.postText}>followers</p>
+              {followers.length === 0 ? (
+                <p></p>
+              ) : (
+                followers.map((follower) => (
+                  <div key={follower._id}>
+                    <img src={follower.avatar} alt={follower.username} width={30} height={30} />
+                    <span>{follower.username}</span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className={styles.postContainer}>
+              <h3 className={styles.numberPost}>{following.length}</h3>
+              <p className={styles.postText}>following</p>
+              {following.length === 0 ? (
+                <p></p>
+              ) : (
+                following.map((followed) => (
+                  <div key={followed._id}>
+                    <img src={followed.avatar} alt={followed.username} width={30} height={30} />
+                    <span>{followed.username}</span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        ))
-      )}
-
-      <h3>Посты пользователя</h3>
-      {user.posts.length === 0 ? (
-        <p>Посты не найдены.</p>
-      ) : (
-        user.posts.map((post) => (
-          <div key={post._id}>
-            <p>
-              <b>Автор:</b> {post.author.username}
-            </p>
-            <p>{post.description}</p>
-            {post.image && <img src={post.image} alt="post" style={{ maxWidth: '300px' }} />}
-          </div>
-        ))
-      )}
-
-      {isOwnProfile && (
-        <>
-          <h3>Редактировать профиль</h3>
-          <form onSubmit={handleSubmit}>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Имя" required />
-            <br />
-            <input type="file" accept="image/*" onChange={handleAvatarChange} />
-            <br />
-            <button type="submit" disabled={loading}>
-              {loading ? 'Сохраняю...' : 'Сохранить'}
-            </button>
-          </form>
-        </>
-      )}
+          <p>description</p>
+        </div>
+      </div>
+      <div className={styles.postGrid}>{user.posts.length === 0 ? <p>Посты не найдены.</p> : user.posts.map((post) => <div key={post._id}>{post.image && <img src={post.image} alt="post" />}</div>)}</div>
     </div>
   );
 };

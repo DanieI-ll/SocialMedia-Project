@@ -1,0 +1,88 @@
+.mainContainer {
+  margin-left: 200px;
+  margin-top: 44px;
+}
+
+.profileContainer {
+  display: flex;
+}
+
+.usernameContainer {
+  display: flex;
+  align-items: center;
+  gap: 23px;
+}
+
+.usernameContainer h2 {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 126%;
+  color: #000;
+}
+
+.link {
+  border-radius: 8px;
+  width: 168px;
+  height: 32px;
+  background-color: #efefef;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: center;
+  color: #000;
+  padding-top: 7px;
+}
+
+.avatarContainer {
+  display: flex;
+  margin-top: 5px;
+}
+
+.mainUsernameContainer {
+  margin-left: 95px;
+}
+
+.avatarContainer img {
+  width: 150px;
+  height: 150px;
+  border-radius: 75px;
+}
+
+.userInfoContainer {
+  display: flex;
+  margin-top: 28px;
+  gap: 40px;
+}
+
+.numberPost {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 112%;
+  color: #000;
+}
+
+.postText {
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 112%;
+  color: #000;
+}
+
+.postContainer {
+  display: flex;
+  gap: 3px;
+}
+
+.postGrid {
+  display: grid;
+  grid-template-columns: 300px 300px 300px;
+  grid-template-rows: 300px;
+  margin-top: 55px;
+  gap: 4px;
+}

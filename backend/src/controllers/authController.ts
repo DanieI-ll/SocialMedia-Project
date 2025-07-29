@@ -9,10 +9,15 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await registerUser(req.body);
     res.status(201).json({ user });
-  } catch (err) {
-    res.status(400).json({ message: (err as Error).message });
+  } catch (err: any) {
+    // Eğer service'ten field gelirse
+    if (err.field) {
+      return res.status(400).json({ field: err.field, message: err.message });
+    }
+    res.status(400).json({ message: err.message || 'Ошибка регистрации' });
   }
 };
+
 
 export const login = async (req: Request, res: Response) => {
   try {

@@ -24,13 +24,23 @@ export const unfollowController = async (req: Request, res: Response) => {
 };
 
 export const getFollowersController = async (req: Request, res: Response) => {
-  const followers = await getFollowers(req.params.userId);
-  res.json({ count: followers.length, followers });
+  try {
+    const userId = req.params.userId === 'me' ? (req as any).user.id : req.params.userId;
+    const followers = await getFollowers(userId);
+    res.json({ count: followers.length, followers });
+  } catch (err) {
+    res.status(400).json({ message: (err as Error).message });
+  }
 };
-
 
 export const getFollowingController = async (req: Request, res: Response) => {
-  const following = await getFollowing(req.params.userId);
-  res.json({ count: following.length, following });
+  try {
+    const userId = req.params.userId === 'me' ? (req as any).user.id : req.params.userId;
+    const following = await getFollowing(userId);
+    res.json({ count: following.length, following });
+  } catch (err) {
+    res.status(400).json({ message: (err as Error).message });
+  }
 };
+
 
