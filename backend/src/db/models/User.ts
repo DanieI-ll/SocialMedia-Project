@@ -29,11 +29,30 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: '',
+      default: 'https://www.svgrepo.com/show/421823/user-people-man.svg',
+    },
+    resetPasswordToken: {
+      type: String,
+      default: null as any,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null as any,
     },
   },
   { versionKey: false, timestamps: true },
 );
+
+interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
+  name?: string;
+  avatar?: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpires?: Date | null;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
 // Хэшируем пароль перед сохранением
 userSchema.pre('save', async function (next) {
@@ -54,6 +73,6 @@ userSchema.methods.comparePassword = async function (candidatePassword: string):
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = model('user', userSchema);
+const User = model<IUser>('user', userSchema);
 
 export default User;

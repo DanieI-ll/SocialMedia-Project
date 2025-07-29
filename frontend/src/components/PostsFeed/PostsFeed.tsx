@@ -32,6 +32,7 @@ interface PostsFeedProps {
 export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [showCommentInput, setShowCommentInput] = useState<Record<string, boolean>>({});
   const [commentsVisibleCount, setCommentsVisibleCount] = useState<Record<string, number>>({});
@@ -120,6 +121,20 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
     });
   }
 
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await axios.get('http://localhost:3000/api/profile/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAvatar(res.data.avatar);
+      } catch (err) {
+        console.error('Ошибка загрузки аватара', err);
+      }
+    }
+    fetchProfile();
+  });
+
   if (error) return <p>{error}</p>;
 
   return (
@@ -134,9 +149,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           return (
             <div key={post._id} className={styles.post}>
               <div className={styles.postData}>
+                <img src={avatar} alt="Profile" className={styles.avatar} />
                 <p className={styles.avatarUsername}>{post.author.username}</p>
-                <p>• 2 wek •</p>
-                <p> follow </p>
+                <p className={styles.postTime}>• 2 wek •</p>
+                <p className={styles.followBtn}> follow </p>
               </div>
 
               {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px' }} />}

@@ -12,8 +12,28 @@
   padding-bottom: 35px;
 }
 
+.postTime {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 129%;
+  color: #737373;
+  margin-left: 10px;
+}
+
+.followBtn {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 129%;
+  text-align: center;
+  color: #0095f6;
+  margin-left: 20px;
+}
+
 .postData {
   display: flex;
+  align-items: center;
   margin-bottom: 12px;
 }
 
@@ -22,6 +42,7 @@
   font-size: 12px;
   line-height: 129%;
   color: #000;
+  margin-left: 11px;
 }
 
 .likeBlock {
@@ -111,13 +132,19 @@
   margin-top: 4px;
 }
 
+.avatar {
+  width: 26px;
+  height: 27px;
+  border-radius: 50%;
+}
+
 @media (min-width: 1540px) {
   .feed {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin-left: 104px;
-  margin-top: 58px;
-  gap: 39px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-left: 104px;
+    margin-top: 58px;
+    gap: 39px;
   }
 
   .seeAllContainer {
