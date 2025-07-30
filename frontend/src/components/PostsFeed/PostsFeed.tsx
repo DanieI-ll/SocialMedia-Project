@@ -18,10 +18,11 @@ interface Post {
   _id: string;
   description: string;
   image?: string;
-  author: { username: string };
+  author: { username: string; _id: string; avatar?: string }; // добавлено avatar
   likesCount: number;
   likedByUser: boolean;
   comments: Comment[];
+  createdAt: string;
 }
 
 interface PostsFeedProps {
@@ -36,6 +37,28 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [showCommentInput, setShowCommentInput] = useState<Record<string, boolean>>({});
   const [commentsVisibleCount, setCommentsVisibleCount] = useState<Record<string, number>>({});
+  const [followedUsers, setFollowedUsers] = useState<string[]>([]); // userId array
+
+  function timeAgo(dateString: string) {
+    const now = new Date();
+    const createdDate = new Date(dateString);
+    const diffMs = now.getTime() - createdDate.getTime();
+
+    const seconds = Math.floor(diffMs / 1000);
+    if (seconds < 60) return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
+
+    const weeks = Math.floor(days / 7);
+    return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+  }
 
   useEffect(() => {
     async function fetchPostsAndComments() {
@@ -74,12 +97,45 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
       }
     }
 
+    async function fetchFollowing() {
+      try {
+        const res = await axios.get<{ following: { following: { _id: string } }[] }>('http://localhost:3000/following/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userIds = res.data.following.map((f) => f.following._id);
+        setFollowedUsers(userIds);
+      } catch {
+        setError('Ошибка загрузки подписок');
+      }
+    }
+
     fetchPostsAndComments();
+    fetchFollowing();
   }, [token, refresh]);
+
+  async function toggleFollow(userId: string) {
+    try {
+      if (followedUsers.includes(userId)) {
+        await axios.delete(`http://localhost:3000/unfollow/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFollowedUsers((prev) => prev.filter((id) => id !== userId));
+      } else {
+        await axios.post(`http://localhost:3000/follow/${userId}`, null, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFollowedUsers((prev) => [...prev, userId]);
+      }
+    } catch {
+      setError('Ошибка при изменении подписки');
+    }
+  }
 
   async function handleLike(postId: string) {
     try {
-      const res = await axios.post(`http://localhost:3000/likes/${postId}`, null, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post(`http://localhost:3000/likes/${postId}`, null, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setPosts((posts) =>
         posts.map((post) =>
           post._id === postId
@@ -116,7 +172,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
       const totalComments = posts.find((p) => p._id === postId)?.comments.length || 0;
       return {
         ...prev,
-        [postId]: currentCount === 2 ? totalComments : 2, // eğer 2 ise tümünü aç, değilse tekrar 2’ye dön
+        [postId]: currentCount === 2 ? totalComments : 2,
       };
     });
   }
@@ -128,12 +184,12 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAvatar(res.data.avatar);
-      } catch (err) {
-        console.error('Ошибка загрузки аватара', err);
+      } catch {
+        console.error('Ошибка загрузки аватара');
       }
     }
     fetchProfile();
-  });
+  }, [token]);
 
   if (error) return <p>{error}</p>;
 
@@ -149,10 +205,13 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           return (
             <div key={post._id} className={styles.post}>
               <div className={styles.postData}>
-                <img src={avatar} alt="Profile" className={styles.avatar} />
+                <img src={post.author.avatar || '/default-avatar.png'} alt="Profile" className={styles.avatar} />
                 <p className={styles.avatarUsername}>{post.author.username}</p>
-                <p className={styles.postTime}>• 2 wek •</p>
-                <p className={styles.followBtn}> follow </p>
+                <p className={styles.postTime}>• {timeAgo(post.createdAt)} •</p>
+
+                <p className={styles.followBtn} onClick={() => toggleFollow(post.author._id)} style={{ cursor: 'pointer', color: followedUsers.includes(post.author._id) ? '#0095f6' : '#0095f6' }}>
+                  {followedUsers.includes(post.author._id) ? 'following' : 'follow'}
+                </p>
               </div>
 
               {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px' }} />}

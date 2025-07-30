@@ -5,7 +5,7 @@ import { v2 as cloudinary } from 'cloudinary';
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
-    const { name } = req.body;
+    const { name, username } = req.body;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
 
@@ -17,6 +17,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     }
 
     if (name) user.name = name;
+    if (username) user.username = username;
 
     await user.save();
     res.json(user);

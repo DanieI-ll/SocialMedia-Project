@@ -1,0 +1,38 @@
+/* NotFound.module.css */
+
+.mainContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.imgBlock img {
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.content {
+  margin-left: 44px;
+  margin-bottom: 250px;
+}
+
+.contentHeader {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 56%;
+  color: #000;
+}
+
+.contentP {
+  font-family: var(--font-family);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 125%;
+  color: #737373;
+  width: 470px;
+  margin-top: 30px;
+}

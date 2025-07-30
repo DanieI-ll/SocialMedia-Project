@@ -39,6 +39,7 @@ const userSchema = new Schema(
       type: Date,
       default: null as any,
     },
+    description: { type: String, default: 'not give a description' },
   },
   { versionKey: false, timestamps: true },
 );

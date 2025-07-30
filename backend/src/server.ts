@@ -19,13 +19,13 @@ const startServer = (): void => {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/profile', profileRoutes);
+  app.use('/api/profile', userRoutes);
   app.use('/posts', postRoutes);
   app.use('/likes', likeRoutes);
   app.use('/comments', commentRoutes);
   app.use('/api/users', searchRoutes);
   app.use('/', followRoutes);
   app.use('/notifications', notificationRoutes);
-  app.use('/api/profile', userRoutes);
 
   const port: number = Number(process.env.PORT) || 3000;
 

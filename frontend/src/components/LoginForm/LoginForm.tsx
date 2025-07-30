@@ -5,7 +5,6 @@ import { AuthContext } from '../../context/AuthContext/AuthContext';
 import styles from './LoginForm.module.css';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import ForgotPassword from '../../pages/ForgotPassword/ForgotPassword';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');

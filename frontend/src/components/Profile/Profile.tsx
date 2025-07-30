@@ -5,6 +5,24 @@ import { Link } from 'react-router-dom';
 
 import styles from './Profile.module.css';
 
+type FollowerRelation = {
+  _id: string;
+  follower: {
+    _id: string;
+    username: string;
+    avatar: string;
+  };
+};
+
+type FollowingRelation = {
+  _id: string;
+  following: {
+    _id: string;
+    username: string;
+    avatar: string;
+  };
+};
+
 type Post = {
   _id: string;
   description: string;
@@ -23,12 +41,6 @@ type User = {
   posts: Post[];
 };
 
-type Follower = {
-  _id: string;
-  username: string;
-  avatar: string;
-};
-
 interface ProfileProps {
   userId?: string;
 }
@@ -40,8 +52,9 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const [name, setName] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [followers, setFollowers] = useState<Follower[]>([]);
-  const [following, setFollowing] = useState<Follower[]>([]);
+  const [followers, setFollowers] = useState<FollowerRelation[]>([]);
+  const [following, setFollowing] = useState<FollowingRelation[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -69,12 +82,14 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
     async function fetchFollowersFollowing() {
       try {
-        const userParam = isOwnProfile ? 'me' : userId;
+        const userParam = isOwnProfile ? user?._id : userId;
+        if (!userParam) return;
+
         const [followersRes, followingRes] = await Promise.all([
-          axios.get<{ followers: Follower[] }>(`http://localhost:3000/api/followers/${userParam}`, {
+          axios.get<{ count: number; followers: FollowerRelation[] }>(`http://localhost:3000/followers/${userParam}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get<{ following: Follower[] }>(`http://localhost:3000/api/following/${userParam}`, {
+          axios.get<{ count: number; following: FollowingRelation[] }>(`http://localhost:3000/following/${userParam}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -87,7 +102,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
     fetchProfile();
     fetchFollowersFollowing();
-  }, [token, userId, isOwnProfile]);
+  }, [token, userId, isOwnProfile, user?._id]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -162,10 +177,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               {followers.length === 0 ? (
                 <p></p>
               ) : (
-                followers.map((follower) => (
-                  <div key={follower._id}>
-                    <img src={follower.avatar} alt={follower.username} width={30} height={30} />
-                    <span>{follower.username}</span>
+                followers.map(({ _id, follower }) => (
+                  <div key={_id}>
+                    {/* <img src={follower.avatar} alt={follower.username} width={30} height={30} />
+                    <span>{follower.username}</span> */}
                   </div>
                 ))
               )}
@@ -177,10 +192,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               {following.length === 0 ? (
                 <p></p>
               ) : (
-                following.map((followed) => (
-                  <div key={followed._id}>
-                    <img src={followed.avatar} alt={followed.username} width={30} height={30} />
-                    <span>{followed.username}</span>
+                following.map(({ _id, following }) => (
+                  <div key={_id}>
+                    {/* <img src={following.avatar} alt={following.username} width={30} height={30} />
+                    <span>{following.username}</span> */}
                   </div>
                 ))
               )}

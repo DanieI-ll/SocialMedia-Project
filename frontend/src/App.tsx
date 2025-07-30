@@ -14,6 +14,7 @@ import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import Cookies from './pages/StaticPages/Cookies/Cookies';
 import LearnMore from './pages/StaticPages/LearnMore/LearnMore';
 import PrivacyPolicy from './pages/StaticPages/PrivacyPolicy/PrivacyPolicy';
+import NotFound from './pages/NotFound/NotFound';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import Terms from './pages/StaticPages/Terms/Terms';
 import axios from 'axios';
@@ -49,6 +50,17 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot" element={<ForgotPassword />} />
         <Route path="/reset/:token" element={<ResetPassword />} />
+
+        <Route
+          path="*"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <NotFound />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
 
         <Route
           path="/posts"

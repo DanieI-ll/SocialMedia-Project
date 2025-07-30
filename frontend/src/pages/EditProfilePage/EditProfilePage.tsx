@@ -7,6 +7,7 @@ export default function EditProfilePage() {
   const { token } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
+  const [description, setDescription] = useState('');
   const [avatar, setAvatar] = useState<File | string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +19,7 @@ export default function EditProfilePage() {
         });
         setName(res.data.name || '');
         setUsername(res.data.username || '');
+        setDescription(res.data.description || '');
         setAvatar(res.data.avatar || null);
       } catch (err) {
         console.error('Ошибка загрузки профиля', err);
@@ -38,12 +40,17 @@ export default function EditProfilePage() {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('username', username);
+    formData.append('description', description);
     if (avatar && avatar instanceof File) formData.append('avatar', avatar);
 
     try {
-      await axios.put('http://localhost:3000/api/profile/me', formData, {
+      const res = await axios.put('http://localhost:3000/api/profile/me', formData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
       });
+      setName(res.data.name);
+      setUsername(res.data.username);
+      setDescription(res.data.description);
+      if (res.data.avatar) setAvatar(res.data.avatar);
       alert('Профиль обновлен');
     } catch (err) {
       console.error('Ошибка сохранения профиля', err);
@@ -65,7 +72,7 @@ export default function EditProfilePage() {
           </div>
           <div>
             <p className={styles.usernameContainer}>{username || 'New User'}</p>
-            <p className={styles.descriptionContainer}>• Гарантия помощи с трудоустройством в ведущие IT-компании</p>
+            <p className={styles.descriptionContainer}>{description || '• Гарантия помощи с трудоустройством в ведущие IT-компании'}</p>
           </div>
           <label className={styles.inputImg}>
             New photo
@@ -81,12 +88,11 @@ export default function EditProfilePage() {
           <input className={styles.input} type="text" placeholder="Website" />
 
           <p className={styles.header}>About</p>
-          <div className={styles.flexContainer}>
-            <input className={styles.input} type="text" />
-            <button className={styles.buttonDown} type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
-            </button>
-          </div>
+          <textarea className={styles.input} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="About yourself" rows={4} />
+
+          <button className={styles.buttonDown} type="submit" disabled={loading}>
+            {loading ? 'Saving...' : 'Save'}
+          </button>
         </div>
       </form>
     </div>
