@@ -1,0 +1,96 @@
+.mainContainer {
+  margin-left: 167px;
+  margin-top: 48px;
+}
+
+.mainText {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 125%;
+  color: #000;
+}
+
+.imgChangeContainer {
+  border-radius: 20px;
+  width: 610px;
+  height: 88px;
+  background: #efefef;
+  margin-top: 44px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.imgContainer img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin: 16px;
+}
+
+.inputImg {
+  border-radius: 8px;
+  width: 114px;
+  height: 32px;
+  background: #0095f6;
+  cursor: pointer;
+  text-align: center;
+
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: center;
+  color: #fff;
+  padding-top: 6.5px;
+  margin-left: 127px;
+}
+
+.usernameContainer {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 125%;
+  color: #000;
+}
+
+.descriptionContainer {
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 129%;
+  color: #737373;
+  width: 265px;
+}
+
+.header {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 125%;
+  color: #000;
+  margin-top: 21px;
+}
+
+.input {
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+  width: 610px;
+  height: 42px;
+  padding-left: 17px;
+  padding-top: 8px;
+}
+
+.flexContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 67px;
+}
+
+.buttonDown {
+
+}
+
+.editBlock {
+}

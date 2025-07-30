@@ -25,7 +25,7 @@ const startServer = (): void => {
   app.use('/api/users', searchRoutes);
   app.use('/', followRoutes);
   app.use('/notifications', notificationRoutes);
-  app.use('/', userRoutes);
+  app.use('/api/profile', userRoutes);
 
   const port: number = Number(process.env.PORT) || 3000;
 
