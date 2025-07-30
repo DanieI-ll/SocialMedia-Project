@@ -54,11 +54,26 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [followers, setFollowers] = useState<FollowerRelation[]>([]);
   const [following, setFollowing] = useState<FollowingRelation[]>([]);
+  const [description, setDescription] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const isOwnProfile = !userId;
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await axios.get('http://localhost:3000/api/profile/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setDescription(res.data.description || '');
+      } catch (err) {
+        console.error('Ошибка загрузки профиля', err);
+      }
+    }
+    if (token) fetchProfile();
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -201,7 +216,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               )}
             </div>
           </div>
-          <p>description</p>
+          <p className={styles.descriptionP}>{description}</p>
         </div>
       </div>
       <div className={styles.postGrid}>{user.posts.length === 0 ? <p>Посты не найдены.</p> : user.posts.map((post) => <div key={post._id}>{post.image && <img src={post.image} alt="post" />}</div>)}</div>

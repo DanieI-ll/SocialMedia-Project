@@ -56,6 +56,7 @@
   display: flex;
   margin-top: 28px;
   gap: 40px;
+  margin-bottom: 20px;
 }
 
 .numberPost {
@@ -85,4 +86,12 @@
   grid-template-rows: 300px;
   margin-top: 55px;
   gap: 4px;
+}
+
+.descriptionP {
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 129%;
+  color: #000;
 }

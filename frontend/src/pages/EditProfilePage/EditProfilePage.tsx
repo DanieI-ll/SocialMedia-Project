@@ -72,7 +72,7 @@ export default function EditProfilePage() {
           </div>
           <div>
             <p className={styles.usernameContainer}>{username || 'New User'}</p>
-            <p className={styles.descriptionContainer}>{description || '• Гарантия помощи с трудоустройством в ведущие IT-компании'}</p>
+            <p className={styles.descriptionContainer}>{description}</p>
           </div>
           <label className={styles.inputImg}>
             New photo
@@ -88,11 +88,13 @@ export default function EditProfilePage() {
           <input className={styles.input} type="text" placeholder="Website" />
 
           <p className={styles.header}>About</p>
-          <textarea className={styles.input} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="About yourself" rows={4} />
-
-          <button className={styles.buttonDown} type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
-          </button>
+          <div className={styles.flexBtn}>
+            <textarea className={styles.input} id={styles.textarea} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="About yourself" rows={4} maxLength={150} />
+            <span className={styles.charCount}>{description.length}/150</span>
+            <button className={styles.buttonDown} type="submit" disabled={loading}>
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+          </div>
         </div>
       </form>
     </div>

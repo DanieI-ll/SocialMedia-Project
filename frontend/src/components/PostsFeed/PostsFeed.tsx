@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 
 import like from '../../assets/like.svg';
@@ -38,6 +40,8 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [showCommentInput, setShowCommentInput] = useState<Record<string, boolean>>({});
   const [commentsVisibleCount, setCommentsVisibleCount] = useState<Record<string, number>>({});
   const [followedUsers, setFollowedUsers] = useState<string[]>([]); // userId array
+  const [currentUserId, setCurrentUserId] = useState('');
+  const navigate = useNavigate();
 
   function timeAgo(dateString: string) {
     const now = new Date();
@@ -184,8 +188,9 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAvatar(res.data.avatar);
+        setCurrentUserId(res.data._id); // сохраняем свой ID
       } catch {
-        console.error('Ошибка загрузки аватара');
+        console.error('Ошибка загрузки профиля');
       }
     }
     fetchProfile();
@@ -205,13 +210,16 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           return (
             <div key={post._id} className={styles.post}>
               <div className={styles.postData}>
-                <img src={post.author.avatar || '/default-avatar.png'} alt="Profile" className={styles.avatar} />
+                <img src={post.author.avatar || '/default-avatar.png'} alt="Profile" className={styles.avatar} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }} />
+
                 <p className={styles.avatarUsername}>{post.author.username}</p>
                 <p className={styles.postTime}>• {timeAgo(post.createdAt)} •</p>
 
-                <p className={styles.followBtn} onClick={() => toggleFollow(post.author._id)} style={{ cursor: 'pointer', color: followedUsers.includes(post.author._id) ? '#0095f6' : '#0095f6' }}>
-                  {followedUsers.includes(post.author._id) ? 'following' : 'follow'}
-                </p>
+                {post.author._id !== currentUserId && (
+                  <p className={styles.followBtn} onClick={() => toggleFollow(post.author._id)} style={{ cursor: 'pointer', color: followedUsers.includes(post.author._id) ? '#0095f6' : '#0095f6' }}>
+                    {followedUsers.includes(post.author._id) ? 'following' : 'follow'}
+                  </p>
+                )}
               </div>
 
               {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px' }} />}

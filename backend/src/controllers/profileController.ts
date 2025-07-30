@@ -12,8 +12,8 @@ export const getMyProfile = async (req: Request, res: Response) => {
 
 export const updateMyProfile = async (req: Request, res: Response) => {
   try {
-    const { name, avatar, description } = req.body; // добавить description
-    const updated = await updateProfile((req as any).user.id, { name, avatar, description });
+    const { name, username, avatar, description } = req.body;
+    const updated = await updateProfile((req as any).user.id, { name, username, avatar, description });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });

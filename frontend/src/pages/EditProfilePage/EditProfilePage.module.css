@@ -45,6 +45,11 @@
   color: #fff;
   padding-top: 6.5px;
   margin-left: 127px;
+  transition: 0.3s;
+}
+
+.inputImg:hover {
+  background-color: #0065c4 !important;
 }
 
 .usernameContainer {
@@ -82,8 +87,38 @@
   padding-top: 8px;
 }
 
+textarea.input {
+  resize: none;
+  height: 62px;
+}
+
 .flexContainer {
   display: flex;
   flex-direction: column;
   gap: 67px;
+}
+
+.buttonDown {
+  transition: 0.3s;
+}
+
+.buttonDown:hover {
+  background-color: #0065c4 !important;
+}
+
+.flexBtn {
+  display: flex;
+  flex-direction: column;
+  gap: 65px;
+}
+
+.charCount {
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 133%;
+  color: #737373;
+  position: absolute;
+  right: 29%;
+  top: 59%;
 }
