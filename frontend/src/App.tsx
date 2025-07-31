@@ -51,7 +51,14 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot" element={<ForgotPassword />} />
         <Route path="/reset/:token" element={<ResetPassword />} />
-        <Route path="/profile/:userId" element={<ProfilePage token={token} />} />
+        <Route
+          path="/profile/:userId"
+          element={
+            <Layout>
+              <ProfilePage token={token} />
+            </Layout>
+          }
+        />
 
         <Route
           path="*"

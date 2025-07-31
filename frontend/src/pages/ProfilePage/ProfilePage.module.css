@@ -1,0 +1,106 @@
+.profileDetails {
+  display: flex;
+}
+
+.followBtn {
+  border-radius: 8px;
+  width: 168px;
+  height: 32px;
+
+  font-family: var(--font-family);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  padding-top: 6px;
+  margin-left: 20px;
+
+  background-color: #0095f6 !important;
+  transition: 0.3s;
+}
+
+.followBtn:hover {
+  background-color: #0065c4 !important;
+}
+
+.username {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 126%;
+  color: #000;
+  margin-left: 95px;
+}
+
+.main {
+  margin-left: 200px;
+  margin-top: 44px;
+}
+
+.userDetails {
+  display: flex;
+  margin-left: 95px;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+}
+
+.messegeBtn {
+  border-radius: 8px;
+  width: 190px;
+  height: 32px;
+  background: #efefef;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: center;
+  color: #000;
+  padding-top: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.userDetails {
+  margin-top: 30px;
+  display: flex;
+  gap: 30px;
+}
+
+.userDetails span {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 112%;
+  color: #000;
+}
+
+.userDetails p {
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 112%;
+  color: #000;
+}
+
+.discription {
+  font-family: var(--font-family);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 129%;
+  color: #000;
+  margin-top: 20px;
+  margin-left: 95px;
+}
+
+.postGrid {
+  display: grid;
+  grid-template-columns: 300px 300px 300px;
+  grid-template-rows: 300px;
+  margin-top: 55px;
+  gap: 4px;
+}

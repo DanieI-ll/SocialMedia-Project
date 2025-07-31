@@ -1,11 +1,14 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import styles from './ProfilePage.module.css';
 import axios from 'axios';
 
 interface User {
   _id: string;
   username: string;
   avatar?: string;
+  description?: string;
+  isFollowing?: boolean;
 }
 
 interface Post {
@@ -16,10 +19,29 @@ interface Post {
 }
 
 export default function ProfilePage({ token }: { token: string | null }) {
-  const { userId } = useParams<{ userId: string }>(); // ожидается userId
+  const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
+
+  const [followers, setFollowers] = useState<any[]>([]);
+
+  const [following, setFollowing] = useState<any[]>([]);
+  const [myId, setMyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchMyId() {
+      try {
+        const res = await axios.get('http://localhost:3000/api/profile/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMyId(res.data._id);
+      } catch (err) {
+        console.error('Ошибка получения моего ID', err);
+      }
+    }
+    if (token) fetchMyId();
+  }, [token]);
 
   useEffect(() => {
     if (!userId) return;
@@ -46,36 +68,107 @@ export default function ProfilePage({ token }: { token: string | null }) {
       }
     }
 
+    async function fetchFollowersFollowing() {
+      try {
+        const [followersRes, followingRes] = await Promise.all([axios.get(`http://localhost:3000/followers/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/following/${userId}`, { headers: { Authorization: `Bearer ${token}` } })]);
+        setFollowers(followersRes.data.followers || []);
+        setFollowing(followingRes.data.following);
+      } catch (err) {
+        console.error('Ошибка загрузки подписчиков/подписок', err);
+      }
+    }
+
     fetchUser();
     fetchUserPosts();
+    fetchFollowersFollowing();
   }, [userId, token]);
+
+  // Синхронизация isFollowing по followers и myId
+  useEffect(() => {
+    if (!myId || !followers) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      const newIsFollowing = followers.some((f: any) => f._id === myId);
+      if (prev.isFollowing === newIsFollowing) return prev;
+      return { ...prev, isFollowing: newIsFollowing };
+    });
+  }, [followers, myId]);
+
+  async function handleFollow() {
+    if (!token || !user) return;
+
+    const prevIsFollowing = user.isFollowing;
+    const prevFollowers = [...followers];
+
+    // Optimistic update
+    setUser((prev) => (prev ? { ...prev, isFollowing: !prev.isFollowing } : prev));
+    setFollowers((prev) => (prevIsFollowing ? prev.filter((f) => f._id !== myId) : [...prev, { _id: myId }]));
+
+    try {
+      let res;
+      if (prevIsFollowing) {
+        res = await axios.delete(`http://localhost:3000/unfollow/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        res = await axios.post(`http://localhost:3000/follow/${user._id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      }
+
+      // Backend yeni followers listesini veya sayısını döndürmeli
+      if (res.data.followers) {
+        setFollowers(res.data.followers);
+        setUser((prev) => (prev ? { ...prev, isFollowing: res.data.isFollowing } : prev));
+      }
+    } catch (err) {
+      console.error('Ошибка подписки', err);
+      // Revert state
+      setUser((prev) => (prev ? { ...prev, isFollowing: prevIsFollowing } : prev));
+      setFollowers(prevFollowers);
+    }
+  }
 
   if (error) return <p>{error}</p>;
   if (!user) return <p>Загрузка...</p>;
 
+  const isOwnProfile = myId === userId;
+
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <img src={user.avatar || '/default-avatar.png'} alt="avatar" style={{ width: 80, height: 80, borderRadius: '50%' }} />
-        <h2>{user.username}</h2>
+    <div className={styles.main}>
+      <div className={styles.profileDetails}>
+        <div>
+          <img src={user.avatar || '/default-avatar.png'} alt="avatar" style={{ width: 150, height: 150, borderRadius: '50%' }} />
+        </div>
+
+        <div>
+          <div className={styles.container}>
+            <h2 className={styles.username}>{user.username}</h2>
+            {!isOwnProfile && (
+              <div className={styles.followBtn} onClick={handleFollow} style={{ cursor: 'pointer' }}>
+                {user.isFollowing ? 'Unfollow' : 'Follow'}
+              </div>
+            )}
+          </div>
+          <div className={styles.userDetails}>
+            <p>
+              <span>{posts.length}</span> posts
+            </p>
+            <p>
+              <span>{followers?.length || 0}</span> followers
+            </p>
+            <p>
+              <span>{following.length}</span> following
+            </p>
+          </div>
+          <div className={styles.discription}>
+            <p>{user.description || 'No description'}</p>
+          </div>
+        </div>
       </div>
 
-      <h3 style={{ marginTop: 20 }}>Posts:</h3>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, 200px)',
-          gap: 10,
-          marginTop: 10,
-        }}
-      >
+      <div className={styles.postGrid}>
         {posts.length === 0 && <p>Нет постов</p>}
         {posts.map((post) => (
-          <div key={post._id} style={{ border: '1px solid #ddd', padding: 5, borderRadius: 8 }}>
-            {post.image && <img src={post.image} alt="post" style={{ width: '100%', height: 150, objectFit: 'cover' }} />}
-            <p>{post.description}</p>
-            <p style={{ fontSize: 12, color: 'gray' }}>{new Date(post.createdAt).toLocaleDateString()}</p>
-          </div>
+          <div key={post._id}>{post.image && <img src={post.image} alt="post" />}</div>
         ))}
       </div>
     </div>
