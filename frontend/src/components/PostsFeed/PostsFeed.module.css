@@ -28,7 +28,7 @@
   line-height: 129%;
   text-align: center;
   color: #0095f6;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .postData {
@@ -136,6 +136,158 @@
   width: 26px;
   height: 27px;
   border-radius: 50%;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.201);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContainer {
+  display: flex;
+  background: #fff;
+  max-width: 900px;
+  width: 90%;
+  height: 80%;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.modalImageWrapper {
+  flex: 2;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalImageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Alanı tamamen kapla */
+}
+
+.modalSide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #dbdbdb;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #dbdbdb;
+
+  border-bottom: 1px solid #efefef;
+  border-left: 0.85px solid #efefef;
+  border-radius: 3px;
+  width: 423px;
+}
+.modalAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.modalUsername {
+  font-weight: bold;
+}
+
+.postDescripton {
+  margin-top: 4px;
+}
+
+.space {
+  width: 10px;
+}
+
+.modalComments {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-bottom: 1px solid #efefef;
+}
+
+.modalLikeComment {
+  margin-left: 15px;
+}
+
+.modalFooter {
+  padding: 5px;
+  border-top: 1px solid #dbdbdb;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.closeBtn {
+  background: #0095f6;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.closeBtn:hover {
+  background: #007ac6;
+}
+
+.dot {
+  margin-left: 8px;
+}
+
+.boldText {
+  font-family: var(--font-family);
+  font-weight: 600;
+  line-height: 129%;
+  text-align: center;
+  color: #262626;
+}
+
+.commentButton {
+  font-family: var(--font-family) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  line-height: 129% !important;
+  text-align: center !important;
+  color: #0095f6 !important;
+  background-color: #fff !important;
+  width: 50px !important;
+  height: 2px !important;
+  margin-bottom: 25px;
+  margin-left: 90px;
+}
+
+.commentInput {
+  border: none;
+}
+.flexContainer {
+  display: flex;
+  align-items: center;
+  margin-left: 7.5px;
+  margin-top: 6px;
+}
+
+.postTimeModal {
+  font-family: var(--font-family) !important;
+  font-weight: 400 !important;
+  font-size: 10px !important;
+  line-height: 133% !important;
+  letter-spacing: 0.02em !important;
+  color: #737373 !important;
 }
 
 @media (min-width: 1540px) {

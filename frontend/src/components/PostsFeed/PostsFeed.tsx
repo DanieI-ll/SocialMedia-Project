@@ -41,6 +41,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [commentsVisibleCount, setCommentsVisibleCount] = useState<Record<string, number>>({});
   const [followedUsers, setFollowedUsers] = useState<string[]>([]); // userId array
   const [currentUserId, setCurrentUserId] = useState('');
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
 
   function timeAgo(dateString: string) {
@@ -140,17 +141,16 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
       const res = await axios.post(`http://localhost:3000/likes/${postId}`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPosts((posts) =>
-        posts.map((post) =>
-          post._id === postId
-            ? {
-                ...post,
-                likedByUser: res.data.liked,
-                likesCount: res.data.likesCount,
-              }
-            : post,
-        ),
-      );
+
+      setPosts((posts) => posts.map((post) => (post._id === postId ? { ...post, likedByUser: res.data.liked, likesCount: res.data.likesCount } : post)));
+
+      if (selectedPost && selectedPost._id === postId) {
+        setSelectedPost({
+          ...selectedPost,
+          likedByUser: res.data.liked,
+          likesCount: res.data.likesCount,
+        });
+      }
     } catch {
       setError('Ошибка при лайке');
     }
@@ -198,6 +198,97 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   if (error) return <p>{error}</p>;
 
+  function PostModal({ post, onClose }: { post: Post; onClose: () => void }) {
+    
+    return (
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalImageWrapper}>
+            <img src={post.image} alt="Post" />
+          </div>
+          <div className={styles.modalSide}>
+            <div className={styles.modalHeader}>
+              <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
+              <p className={styles.modalUsername}>{post.author.username}</p>
+              <span className={styles.dot}>•</span>
+              {post.author._id !== currentUserId && (
+                <p
+                  className={styles.followBtn}
+                  onClick={() => toggleFollow(post.author._id)}
+                  style={{
+                    cursor: 'pointer',
+                    color: followedUsers.includes(post.author._id) ? '#0095f6' : '#0095f6',
+                  }}
+                >
+                  {followedUsers.includes(post.author._id) ? 'following' : 'follow'}
+                </p>
+              )}
+            </div>
+            <div className={styles.flexContainer}>
+              <div className={styles.flexContainer}>
+                <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
+                <p className={styles.modalUsername}>{post.author.username}</p>
+              </div>
+              <span className={styles.space}></span>
+              <div>
+                <p className={styles.postDescripton}>{post.description}</p>
+              </div>
+            </div>
+            <div className={styles.modalComments}>
+              {post.comments.map((c) => (
+                <p key={c._id}>
+                  <b className={styles.boldText}>{c.user.username}</b> {c.text}
+                </p>
+              ))}
+            </div>
+            <div className={styles.modalLikeComment}>
+              <div className={styles.likeCommentBlock}>
+                <div className={styles.likeBlock}>
+                  <img src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
+
+                  <img
+                    src={comment}
+                    alt="comment"
+                    onClick={() =>
+                      setShowCommentInput((prev) => ({
+                        ...prev,
+                        [post._id]: !prev[post._id],
+                      }))
+                    }
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+                <p>{post.likesCount} likes</p>
+                <p className={styles.postTimeModal}> {timeAgo(post.createdAt)} </p>
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
+              {showCommentInput[post._id] && (
+                <form className={styles.commentInput} onSubmit={(e) => handleAddComment(e, post._id)}>
+                  <input
+                    style={{ border: 'none' }}
+                    type="text"
+                    value={commentInputs[post._id] || ''}
+                    onChange={(e) =>
+                      setCommentInputs((prev) => ({
+                        ...prev,
+                        [post._id]: e.target.value,
+                      }))
+                    }
+                    placeholder="Add Comment"
+                  />
+                  <button className={styles.commentButton} type="submit">
+                    Send
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.mainContainerAll}>
       <div className={styles.feed}>
@@ -222,7 +313,9 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 )}
               </div>
 
-              {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px' }} />}
+              {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px', cursor: 'pointer' }} onClick={() => setSelectedPost(post)} />}
+
+              {selectedPost && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} />}
 
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
@@ -268,22 +361,27 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 </div>
               </div>
 
-              {showCommentInput[post._id] && (
-                <form onSubmit={(e) => handleAddComment(e, post._id)}>
-                  <input
-                    type="text"
-                    value={commentInputs[post._id] || ''}
-                    onChange={(e) =>
-                      setCommentInputs((prev) => ({
-                        ...prev,
-                        [post._id]: e.target.value,
-                      }))
-                    }
-                    placeholder="Добавить комментарий"
-                  />
-                  <button type="submit">Отправить</button>
-                </form>
-              )}
+              <div>
+                {showCommentInput[post._id] && (
+                  <form style={{ display: 'flex' }} onSubmit={(e) => handleAddComment(e, post._id)}>
+                    <input
+                      style={{ border: 'none' }}
+                      type="text"
+                      value={commentInputs[post._id] || ''}
+                      onChange={(e) =>
+                        setCommentInputs((prev) => ({
+                          ...prev,
+                          [post._id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Add comment"
+                    />
+                    <button style={{ marginLeft: '-5px' }} className={styles.commentButton} type="submit">
+                      Send
+                    </button>
+                  </form>
+                )}
+              </div>
             </div>
           );
         })}
