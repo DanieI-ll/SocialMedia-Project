@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../db/models/User';
+import Follow from '../db/models/Follow';
 import { v2 as cloudinary } from 'cloudinary';
 
 export const updateProfile = async (req: Request, res: Response) => {
@@ -28,9 +29,21 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 export async function getUserByIdController(req: Request, res: Response) {
   try {
-    const user = await User.findById(req.params.userId).select('-password'); // без пароля
+    const userId = req.params.userId;
+    const currentUserId = (req as any).user?.id; // authMiddleware sayesinde
+    const user = await User.findById(userId).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json(user);
+
+    let isFollowing = false;
+    if (currentUserId && currentUserId !== userId) {
+      const follow = await Follow.findOne({ follower: currentUserId, following: userId });
+      isFollowing = !!follow;
+    }
+
+    res.json({
+      ...user.toObject(),
+      isFollowing,
+    });
   } catch (e) {
     res.status(500).json({ message: 'Server error' });
   }

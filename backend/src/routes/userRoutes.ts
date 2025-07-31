@@ -7,6 +7,6 @@ import { getUserByIdController } from '../controllers/userController';
 const router = Router();
 
 router.put('/me', authMiddleware, upload.single('avatar'), updateMyProfile); // UpdateProfile
-router.get('/:userId', getUserByIdController);
+router.get('/:userId', authMiddleware, getUserByIdController);
 
 export default router;
