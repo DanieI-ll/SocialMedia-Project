@@ -18,15 +18,19 @@ interface Post {
   createdAt: string;
 }
 
+interface FollowUser {
+  _id: string;
+}
+
 export default function ProfilePage({ token }: { token: string | null }) {
   const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
 
-  const [followers, setFollowers] = useState<any[]>([]);
+const [followers, setFollowers] = useState<FollowUser[]>([]);
+const [following, setFollowing] = useState<FollowUser[]>([]);
 
-  const [following, setFollowing] = useState<any[]>([]);
   const [myId, setMyId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -88,7 +92,7 @@ export default function ProfilePage({ token }: { token: string | null }) {
     if (!myId || !followers) return;
     setUser((prev) => {
       if (!prev) return prev;
-      const newIsFollowing = followers.some((f: any) => f._id === myId);
+      const newIsFollowing = followers.some((f) => f._id === myId);
       if (prev.isFollowing === newIsFollowing) return prev;
       return { ...prev, isFollowing: newIsFollowing };
     });
@@ -102,7 +106,7 @@ export default function ProfilePage({ token }: { token: string | null }) {
 
     // Optimistic update
     setUser((prev) => (prev ? { ...prev, isFollowing: !prev.isFollowing } : prev));
-    setFollowers((prev) => (prevIsFollowing ? prev.filter((f) => f._id !== myId) : [...prev, { _id: myId }]));
+    setFollowers((prev) => (prevIsFollowing ? prev.filter((f) => f._id !== myId) : myId ? [...prev, { _id: myId }] : prev));
 
     try {
       let res;
@@ -160,7 +164,7 @@ export default function ProfilePage({ token }: { token: string | null }) {
             </p>
           </div>
           <div className={styles.discription}>
-            <p>{user.description || 'No description'}</p>
+            <p>{user.description}</p>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import styles from './RegisterForm.module.css';
@@ -30,11 +31,12 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         password,
       });
       onSuccess();
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as AxiosError<{ field?: string; message?: string }>;
       if (err.response?.data?.field === 'email') {
-        setEmailError(err.response.data.message);
+        setEmailError(err.response.data.message || '');
       } else if (err.response?.data?.field === 'username') {
-        setUsernameError(err.response.data.message);
+        setUsernameError(err.response.data.message || '');
       } else {
         setMessage('Registration error');
       }

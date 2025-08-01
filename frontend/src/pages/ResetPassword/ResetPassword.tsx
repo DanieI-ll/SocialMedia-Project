@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import styles from './ResetPassword.module.css';
 import axios from 'axios';
+import { AxiosError } from 'axios';
 import forgot from '../../assets/forgotPassword.png';
 
 const ResetPassword = () => {
@@ -16,7 +17,8 @@ const ResetPassword = () => {
       await axios.post(`http://localhost:3000/api/auth/reset/${token}`, { newPassword: password });
       alert('Password updated!');
       navigate('/login');
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
       setError(err.response?.data?.message || 'Error');
     }
   };

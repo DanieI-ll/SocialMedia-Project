@@ -35,7 +35,7 @@ interface PostsFeedProps {
 export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
-  const [avatar, setAvatar] = useState('');
+  const [, setAvatar] = useState('');
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [showCommentInput, setShowCommentInput] = useState<Record<string, boolean>>({});
   const [commentsVisibleCount, setCommentsVisibleCount] = useState<Record<string, number>>({});
@@ -199,7 +199,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   if (error) return <p>{error}</p>;
 
   function PostModal({ post, onClose }: { post: Post; onClose: () => void }) {
-    
     return (
       <div className={styles.modalOverlay} onClick={onClose}>
         <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
@@ -263,25 +262,23 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               </div>
             </div>
             <div className={styles.modalFooter}>
-              {showCommentInput[post._id] && (
-                <form className={styles.commentInput} onSubmit={(e) => handleAddComment(e, post._id)}>
-                  <input
-                    style={{ border: 'none' }}
-                    type="text"
-                    value={commentInputs[post._id] || ''}
-                    onChange={(e) =>
-                      setCommentInputs((prev) => ({
-                        ...prev,
-                        [post._id]: e.target.value,
-                      }))
-                    }
-                    placeholder="Add Comment"
-                  />
-                  <button className={styles.commentButton} type="submit">
-                    Send
-                  </button>
-                </form>
-              )}
+              <form className={styles.commentInput} onSubmit={(e) => handleAddComment(e, post._id)}>
+                <input
+                  style={{ border: 'none' }}
+                  type="text"
+                  value={commentInputs[post._id] || ''}
+                  onChange={(e) =>
+                    setCommentInputs((prev) => ({
+                      ...prev,
+                      [post._id]: e.target.value,
+                    }))
+                  }
+                  placeholder="Add Comment"
+                />
+                <button className={styles.commentButton} type="submit">
+                  Send
+                </button>
+              </form>
             </div>
           </div>
         </div>

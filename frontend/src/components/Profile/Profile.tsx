@@ -49,14 +49,14 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const { token } = useContext(AuthContext);
 
   const [user, setUser] = useState<User | null>(null);
-  const [name, setName] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [, setName] = useState(''); //name
+  // const [avatarFile] = useState<File | null>(null); // setAvatarFile
   const [avatarUrl, setAvatarUrl] = useState('');
   const [followers, setFollowers] = useState<FollowerRelation[]>([]);
   const [following, setFollowing] = useState<FollowingRelation[]>([]);
   const [description, setDescription] = useState('');
 
-  const [loading, setLoading] = useState(false);
+  // const [, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const isOwnProfile = !userId;
@@ -119,47 +119,47 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
     fetchFollowersFollowing();
   }, [token, userId, isOwnProfile, user?._id]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setAvatarFile(e.target.files[0]);
-    }
-  };
+  // const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     setAvatarFile(e.target.files[0]);
+  //   }
+  // };
 
-  const uploadAvatar = async (): Promise<string> => {
-    if (!avatarFile) return avatarUrl;
+  // const uploadAvatar = async (): Promise<string> => {
+  //   if (!avatarFile) return avatarUrl;
 
-    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/djsqoq2zs/upload';
-    const CLOUDINARY_UPLOAD_PRESET = 'myNewPreset';
+  //   const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/djsqoq2zs/upload';
+  //   const CLOUDINARY_UPLOAD_PRESET = 'myNewPreset';
 
-    const formData = new FormData();
-    formData.append('file', avatarFile);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  //   const formData = new FormData();
+  //   formData.append('file', avatarFile);
+  //   formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-    try {
-      const res = await axios.post(CLOUDINARY_URL, formData);
-      return res.data.secure_url;
-    } catch (err) {
-      console.error('Ошибка загрузки аватара:', err);
-      return avatarUrl;
-    }
-  };
+  //   try {
+  //     const res = await axios.post(CLOUDINARY_URL, formData);
+  //     return res.data.secure_url;
+  //   } catch (err) {
+  //     console.error('Ошибка загрузки аватара:', err);
+  //     return avatarUrl;
+  //   }
+  // };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const uploadedAvatarUrl = await uploadAvatar();
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   const uploadedAvatarUrl = await uploadAvatar();
 
-    try {
-      await axios.put('http://localhost:3000/api/profile/me', { name, avatar: uploadedAvatarUrl }, { headers: { Authorization: `Bearer ${token}` } });
-      setUser((prev) => (prev ? { ...prev, name, avatar: uploadedAvatarUrl } : null));
-      setAvatarUrl(uploadedAvatarUrl);
-    } catch (err) {
-      console.error('Ошибка обновления профиля:', err);
-      setError('Ошибка обновления профиля');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   try {
+  //     await axios.put('http://localhost:3000/api/profile/me', { name, avatar: uploadedAvatarUrl }, { headers: { Authorization: `Bearer ${token}` } });
+  //     setUser((prev) => (prev ? { ...prev, name, avatar: uploadedAvatarUrl } : null));
+  //     setAvatarUrl(uploadedAvatarUrl);
+  //   } catch (err) {
+  //     console.error('Ошибка обновления профиля:', err);
+  //     setError('Ошибка обновления профиля');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   if (error) return <div>{error}</div>;
   if (!user) return <div>Загрузка...</div>;
@@ -192,7 +192,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               {followers.length === 0 ? (
                 <p></p>
               ) : (
-                followers.map(({ _id, follower }) => (
+                followers.map(({ _id, }) => ( //follower
                   <div key={_id}>
                     {/* <img src={follower.avatar} alt={follower.username} width={30} height={30} />
                     <span>{follower.username}</span> */}
@@ -207,7 +207,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               {following.length === 0 ? (
                 <p></p>
               ) : (
-                following.map(({ _id, following }) => (
+                following.map(({ _id, }) => ( //following
                   <div key={_id}>
                     {/* <img src={following.avatar} alt={following.username} width={30} height={30} />
                     <span>{following.username}</span> */}

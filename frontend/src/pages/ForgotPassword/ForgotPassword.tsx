@@ -25,7 +25,8 @@ const ForgotPassword = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Something went wrong');
       setMessage('Password reset link has been sent to your email.');
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error
       setMessage(err.message);
     } finally {
       setLoading(false);
