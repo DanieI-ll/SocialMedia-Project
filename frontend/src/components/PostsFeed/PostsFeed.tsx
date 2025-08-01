@@ -142,12 +142,12 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setPosts((posts) => posts.map((post) => (post._id === postId ? { ...post, likedByUser: res.data.liked, likesCount: res.data.likesCount } : post)));
+      setPosts((posts) => posts.map((post) => (post._id === postId ? { ...post, likedByUser: res.data.likedByUser, likesCount: res.data.likesCount } : post)));
 
       if (selectedPost && selectedPost._id === postId) {
         setSelectedPost({
           ...selectedPost,
-          likedByUser: res.data.liked,
+          likedByUser: res.data.likedByUser,
           likesCount: res.data.likesCount,
         });
       }
@@ -243,7 +243,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
             <div className={styles.modalLikeComment}>
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
-                  <img src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
+                  <img style={{ cursor: 'pointer' }} src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
 
                   <img
                     src={comment}
@@ -316,7 +316,11 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
-                  <img src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
+                  {(() => {
+                    console.log(`Post ID: ${post._id}, likedByUser: ${post.likedByUser}`);
+                    return null; // JSX'in hata vermemesi için bir değer döndürmesi gerekir
+                  })()}
+                  <img style={{ cursor: 'pointer' }} src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
 
                   <img
                     src={comment}
