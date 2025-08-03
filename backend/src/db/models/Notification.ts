@@ -6,6 +6,7 @@ const notificationSchema = new Schema({
   fromUser: { type: Schema.Types.ObjectId, ref: 'user', required: true },
   postId: { type: Schema.Types.ObjectId, ref: 'Post' },
   createdAt: { type: Date, default: Date.now },
+  read: { type: Boolean, default: false },
 });
 
 const Notification = model('Notification', notificationSchema);

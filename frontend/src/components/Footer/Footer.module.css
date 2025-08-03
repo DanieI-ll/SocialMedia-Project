@@ -10,7 +10,7 @@
   gap: 35px;
 }
 
-.footerElements li {
+.footerLinks {
   font-family: var(--font-family);
   font-weight: 400;
   font-size: 12px;

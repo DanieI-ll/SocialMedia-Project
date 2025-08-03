@@ -18,7 +18,7 @@ export const toggleLike = async (userId: string, postId: string) => {
         user: post.author,
         type: 'like',
         fromUser: userId,
-        post: postId,
+        postId: post._id, // правильно: объект _id поста, а не postId как строка
         createdAt: new Date(),
       });
     }
@@ -29,7 +29,7 @@ export const toggleLike = async (userId: string, postId: string) => {
   const likedByUser = await Like.exists({ post: postId, user: userId });
 
   return {
-    likedByUser: !! likedByUser,
+    likedByUser: !!likedByUser,
     likesCount,
   };
 };

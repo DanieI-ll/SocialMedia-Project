@@ -9,6 +9,13 @@ export const getNotifications = async (req: Request, res: Response) => {
 
 export const markAsRead = async (req: Request, res: Response) => {
   const userId = (req as any).user.id;
-  await Notification.deleteMany({ user: userId });
+  await Notification.updateMany({ user: userId, read: false }, { $set: { read: true } });
   res.json({ message: 'Уведомления отмечены как прочитанные' });
+};
+
+export const deleteNotification = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+  const { id } = req.params;
+  await Notification.deleteOne({ _id: id, user: userId });
+  res.json({ message: 'Notification deleted' });
 };

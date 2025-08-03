@@ -17,6 +17,7 @@ import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
 import { UserSearch } from '../UserSearch/UserSearch.tsx';
 import CreatePostForm from '../CreatePostForm/CreatePostForm.tsx';
+import Notifications from '../Notifications/Notifications.tsx';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export default function Layout({ children }: LayoutProps) {
   const [username, setUsername] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const location = useLocation(); // aktif sayfayı almak için
 
@@ -72,10 +74,11 @@ export default function Layout({ children }: LayoutProps) {
             <img src={messenger} alt="messenger" />
             <p>Messenger</p>
           </Link>
-          <Link to="/notifications" className={styles.element}>
-            <img src={location.pathname === '/notifications' ? ActiveNotification : notification} alt="notification" />
+          <a className={styles.element} onClick={() => setIsNotificationsOpen(true)}>
+            <img src={isNotificationsOpen ? ActiveNotification : notification} alt="notification" />
             <p>Notification</p>
-          </Link>
+          </a>
+
           <a className={styles.element} onClick={() => setIsCreateOpen(true)}>
             <img src={create} alt="create" />
             <p>Create</p>
@@ -101,6 +104,18 @@ export default function Layout({ children }: LayoutProps) {
               <h3>Search</h3>
             </div>
             <UserSearch />
+          </div>
+        </>
+      )}
+
+      {isNotificationsOpen && (
+        <>
+          <div className={styles.overlay} onClick={() => setIsNotificationsOpen(false)} />
+          <div className={styles.notificationsPanel}>
+            <div className={styles.searchHeader}>
+              <h3>Notifications</h3>
+            </div>
+            <Notifications />
           </div>
         </>
       )}

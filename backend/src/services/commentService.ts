@@ -12,10 +12,11 @@ export const addComment = async (userId: string, postId: string, text: string) =
       user: post.author, // получатель уведомления
       type: 'comment',
       fromUser: userId,
-      post: postId,
+      postId: post._id, // здесь правильно — ссылка на объект post
       createdAt: new Date(),
     });
   }
+  
 
   return comment.populate('user', 'username avatar');
 };

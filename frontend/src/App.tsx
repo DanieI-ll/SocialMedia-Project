@@ -17,6 +17,7 @@ import PrivacyPolicy from './pages/StaticPages/PrivacyPolicy/PrivacyPolicy';
 import NotFound from './pages/NotFound/NotFound';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
+import Notifications from './components/Notifications/Notifications';
 import Terms from './pages/StaticPages/Terms/Terms';
 import axios from 'axios';
 
@@ -97,6 +98,16 @@ export default function App() {
             <PrivateRoute>
               <Layout>
                 <UserSearch />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Notifications />
               </Layout>
             </PrivateRoute>
           }

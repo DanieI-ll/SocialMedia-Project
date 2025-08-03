@@ -20,6 +20,6 @@ const postSchema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
-const Post = model('post', postSchema);
+const Post = model('Post', postSchema);
 
 export default Post;
