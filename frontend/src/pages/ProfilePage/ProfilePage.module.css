@@ -4,7 +4,7 @@
 
 .followBtn {
   border-radius: 8px;
-  width: 168px;
+  width: 132px;
   height: 32px;
 
   font-family: var(--font-family);
@@ -103,4 +103,70 @@
   grid-template-rows: 300px;
   margin-top: 55px;
   gap: 4px;
+}
+
+.buttonsFlex {
+  display: flex;
+}
+
+.msgBtn {
+  border-radius: 8px;
+  width: 168px;
+  height: 32px;
+
+  font-family: var(--font-family);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: center;
+  color: black;
+  cursor: pointer;
+  padding-top: 6px;
+  margin-left: 8px;
+
+  background: #efefef;
+  transition: 0.3s;
+}
+
+.msgBtn:hover {
+    background: #dfdfdf;
+}
+
+.link {
+  border-radius: 8px;
+  width: 168px;
+  height: 32px;
+  background-color: #efefef;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 129%;
+  text-align: center;
+  color: #000;
+  padding-top: 7px;
+  margin-left: 23.5px;
+}
+
+
+
+
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
 }

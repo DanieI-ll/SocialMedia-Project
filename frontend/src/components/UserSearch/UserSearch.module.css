@@ -48,3 +48,31 @@
   color: #000;
   margin-top: 41px;
 }
+
+.userItem {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.username {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.userLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.userLink:hover .username {
+  text-decoration: underline;
+}

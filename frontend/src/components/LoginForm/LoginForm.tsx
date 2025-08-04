@@ -20,7 +20,7 @@ export default function LoginForm() {
         login: email,
         password,
       });
-      login(res.data.token); // сохраняем токен в контекст
+      login(res.data.token, res.data.userId);
       navigate('/posts'); // переходим на ленту
     } catch {
       setMessage('Wrong password, username or email');

@@ -1,12 +1,13 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
+import { Link } from 'react-router-dom';
 import styles from './UserSearch.module.css';
 
 interface User {
   _id: string;
-  name: string;
   username: string;
+  avatar?: string;
 }
 
 export const UserSearch: React.FC = () => {
@@ -56,8 +57,11 @@ export const UserSearch: React.FC = () => {
 
       <ul className={styles.userResult}>
         {results.map((user) => (
-          <li key={user._id}>
-            {user.name} ({user.username})
+          <li key={user._id} className={styles.userItem}>
+            <Link to={`/profile/${user._id}`} className={styles.userLink}>
+              <img src={user.avatar || '/default-avatar.png'} alt={user.username} className={styles.avatar} />
+              <span className={styles.username}>{user.username}</span>
+            </Link>
           </li>
         ))}
       </ul>

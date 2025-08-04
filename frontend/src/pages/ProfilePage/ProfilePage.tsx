@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ProfilePage.module.css';
 import axios from 'axios';
 
@@ -28,10 +29,13 @@ export default function ProfilePage({ token }: { token: string | null }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
 
-const [followers, setFollowers] = useState<FollowUser[]>([]);
-const [following, setFollowing] = useState<FollowUser[]>([]);
+  const [followers, setFollowers] = useState<FollowUser[]>([]);
+  const [following, setFollowing] = useState<FollowUser[]>([]);
 
   const [myId, setMyId] = useState<string | null>(null);
+
+  // Новое состояние для выбранного поста
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     async function fetchMyId() {
@@ -87,45 +91,34 @@ const [following, setFollowing] = useState<FollowUser[]>([]);
     fetchFollowersFollowing();
   }, [userId, token]);
 
-  // Синхронизация isFollowing по followers и myId
-  useEffect(() => {
-    if (!myId || !followers) return;
-    setUser((prev) => {
-      if (!prev) return prev;
-      const newIsFollowing = followers.some((f) => f._id === myId);
-      if (prev.isFollowing === newIsFollowing) return prev;
-      return { ...prev, isFollowing: newIsFollowing };
-    });
-  }, [followers, myId]);
-
   async function handleFollow() {
     if (!token || !user) return;
 
     const prevIsFollowing = user.isFollowing;
     const prevFollowers = [...followers];
 
-    // Optimistic update
     setUser((prev) => (prev ? { ...prev, isFollowing: !prev.isFollowing } : prev));
-    setFollowers((prev) => (prevIsFollowing ? prev.filter((f) => f._id !== myId) : myId ? [...prev, { _id: myId }] : prev));
+    setFollowers((prev) => {
+      if (prevIsFollowing) {
+        return prev.filter((f) => f._id !== myId);
+      } else {
+        return myId ? [...prev, { _id: myId }] : prev;
+      }
+    });
 
     try {
-      let res;
-      if (prevIsFollowing) {
-        res = await axios.delete(`http://localhost:3000/unfollow/${user._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } else {
-        res = await axios.post(`http://localhost:3000/follow/${user._id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
-      }
+      const res = prevIsFollowing
+        ? await axios.delete(`http://localhost:3000/unfollow/${user._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        : await axios.post(`http://localhost:3000/follow/${user._id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
 
-      // Backend yeni followers listesini veya sayısını döndürmeli
       if (res.data.followers) {
         setFollowers(res.data.followers);
         setUser((prev) => (prev ? { ...prev, isFollowing: res.data.isFollowing } : prev));
       }
     } catch (err) {
       console.error('Ошибка подписки', err);
-      // Revert state
       setUser((prev) => (prev ? { ...prev, isFollowing: prevIsFollowing } : prev));
       setFollowers(prevFollowers);
     }
@@ -146,12 +139,22 @@ const [following, setFollowing] = useState<FollowUser[]>([]);
         <div>
           <div className={styles.container}>
             <h2 className={styles.username}>{user.username}</h2>
-            {!isOwnProfile && (
-              <div className={styles.followBtn} onClick={handleFollow} style={{ cursor: 'pointer' }}>
-                {user.isFollowing ? 'Unfollow' : 'Follow'}
+            {isOwnProfile ? (
+              <div className={styles.buttonsFlex}>
+                <Link to="/edit-profile" className={styles.link}>
+                  Edit Profile
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.buttonsFlex}>
+                <div className={styles.followBtn} onClick={handleFollow} style={{ cursor: 'pointer' }}>
+                  {user.isFollowing ? 'Unfollow' : 'Follow'}
+                </div>
+                <div className={styles.msgBtn}>Message</div>
               </div>
             )}
           </div>
+
           <div className={styles.userDetails}>
             <p>
               <span>{posts.length}</span> posts
@@ -172,9 +175,21 @@ const [following, setFollowing] = useState<FollowUser[]>([]);
       <div className={styles.postGrid}>
         {posts.length === 0 && <p>Нет постов</p>}
         {posts.map((post) => (
-          <div key={post._id}>{post.image && <img src={post.image} alt="post" />}</div>
+          <div key={post._id} onClick={() => setSelectedPost(post)} style={{ cursor: 'pointer' }}>
+            {post.image && <img src={post.image} alt="post" />}
+          </div>
         ))}
       </div>
+
+      {selectedPost && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedPost(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <p>{selectedPost.description}</p>
+            {selectedPost.image && <img src={selectedPost.image} alt="post" style={{ maxWidth: '100%' }} />}
+            <button onClick={() => setSelectedPost(null)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
