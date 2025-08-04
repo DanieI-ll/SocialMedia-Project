@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ProfilePage.module.css';
 import axios from 'axios';
+import PostModal from '../../components/PostModal/PostModal';
 
 interface User {
   _id: string;
@@ -17,10 +18,24 @@ interface Post {
   description: string;
   image?: string;
   createdAt: string;
+  author: { username?: string; _id: string; avatar?: string }; // PostModal için gerekli
+  likesCount: number; // PostModal için gerekli
+  likedByUser: boolean; // PostModal için gerekli
+  comments: Comment[]; // PostModal için gerekli
+}
+
+interface Comment {
+  _id: string;
+  user: { username: string };
+  text: string;
 }
 
 interface FollowUser {
   _id: string;
+}
+
+interface FollowingWrapper {
+  following: FollowUser;
 }
 
 export default function ProfilePage({ token }: { token: string | null }) {
@@ -28,14 +43,13 @@ export default function ProfilePage({ token }: { token: string | null }) {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
-
   const [followers, setFollowers] = useState<FollowUser[]>([]);
   const [following, setFollowing] = useState<FollowUser[]>([]);
-
   const [myId, setMyId] = useState<string | null>(null);
-
-  // Новое состояние для выбранного поста
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
+  // Bu state, PostModal'da kullanılacak `followedUsers` state'ini ProfilePage'de yönetir.
+  const [followedUsers, setFollowedUsers] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchMyId() {
@@ -54,46 +68,41 @@ export default function ProfilePage({ token }: { token: string | null }) {
   useEffect(() => {
     if (!userId) return;
 
-    async function fetchUser() {
+    async function fetchData() {
       try {
-        const res = await axios.get(`http://localhost:3000/api/profile/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(res.data);
-      } catch {
-        setError('Ошибка загрузки пользователя');
-      }
-    }
+        const [userRes, postsRes, followersRes, followingRes, myProfileRes] = await Promise.all([axios.get(`http://localhost:3000/api/profile/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/posts/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/followers/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/following/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get('http://localhost:3000/following/me', { headers: { Authorization: `Bearer ${token}` } })]);
 
-    async function fetchUserPosts() {
-      try {
-        const res = await axios.get(`http://localhost:3000/posts/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setPosts(res.data);
-      } catch {
-        setError('Ошибка загрузки постов');
-      }
-    }
-
-    async function fetchFollowersFollowing() {
-      try {
-        const [followersRes, followingRes] = await Promise.all([axios.get(`http://localhost:3000/followers/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/following/${userId}`, { headers: { Authorization: `Bearer ${token}` } })]);
+        setUser(userRes.data);
+        setPosts(postsRes.data);
         setFollowers(followersRes.data.followers || []);
         setFollowing(followingRes.data.following);
+        setFollowedUsers(myProfileRes.data.following.map((f: FollowingWrapper) => f.following._id));
+
+        const commentsPromises = postsRes.data.map((post: Post) =>
+          axios
+            .get<Comment[]>(`http://localhost:3000/comments/${post._id}`)
+            .then((res) => ({ postId: post._id, comments: res.data }))
+            .catch(() => ({ postId: post._id, comments: [] })),
+        );
+        const commentsResults = await Promise.all(commentsPromises);
+
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            const found = commentsResults.find((c) => c.postId === post._id);
+            return found ? { ...post, comments: found.comments } : post;
+          }),
+        );
       } catch (err) {
-        console.error('Ошибка загрузки подписчиков/подписок', err);
+        setError('Ошибка загрузки данных профиля');
+        console.error(err);
       }
     }
 
-    fetchUser();
-    fetchUserPosts();
-    fetchFollowersFollowing();
+    fetchData();
   }, [userId, token]);
 
   async function handleFollow() {
     if (!token || !user) return;
-
     const prevIsFollowing = user.isFollowing;
     const prevFollowers = [...followers];
 
@@ -123,6 +132,11 @@ export default function ProfilePage({ token }: { token: string | null }) {
       setFollowers(prevFollowers);
     }
   }
+
+  const handleUpdatePost = (updatedPost: Post) => {
+    setPosts((prevPosts) => prevPosts.map((post) => (post._id === updatedPost._id ? updatedPost : post)));
+    setSelectedPost(updatedPost);
+  };
 
   if (error) return <p>{error}</p>;
   if (!user) return <p>Загрузка...</p>;
@@ -181,15 +195,7 @@ export default function ProfilePage({ token }: { token: string | null }) {
         ))}
       </div>
 
-      {selectedPost && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedPost(null)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <p>{selectedPost.description}</p>
-            {selectedPost.image && <img src={selectedPost.image} alt="post" style={{ maxWidth: '100%' }} />}
-            <button onClick={() => setSelectedPost(null)}>Close</button>
-          </div>
-        </div>
-      )}
+      {selectedPost && token && myId && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} token={token} currentUserId={myId} followedUsers={followedUsers} setFollowedUsers={setFollowedUsers} updatePostInFeed={handleUpdatePost} />}
     </div>
   );
 }

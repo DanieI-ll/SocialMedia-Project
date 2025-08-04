@@ -20,7 +20,7 @@ interface Post {
   _id: string;
   description: string;
   image?: string;
-  author: { username: string; _id: string; avatar?: string }; // добавлено avatar
+  author: { username?: string; _id: string; avatar?: string }; // добавлено avatar
   likesCount: number;
   likedByUser: boolean;
   comments: Comment[];
