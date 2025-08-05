@@ -8,11 +8,15 @@ import liked from '../../assets/liked.svg';
 import comment from '../../assets/comment.svg';
 import seeAll from '../../assets/seeAll.svg';
 
+import emoji from '../../assets/emoji.svg';
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
+
 import styles from './PostsFeed.module.css';
 
 interface Comment {
   _id: string;
-  user: { username: string; avatar?: string }; // добавили avatar
+  user: { username: string; avatar?: string };
   text: string;
 }
 
@@ -20,7 +24,7 @@ interface Post {
   _id: string;
   description: string;
   image?: string;
-  author: { username?: string; _id: string; avatar?: string }; // добавлено avatar
+  author: { username?: string; _id: string; avatar?: string };
   likesCount: number;
   likedByUser: boolean;
   comments: Comment[];
@@ -32,6 +36,10 @@ interface PostsFeedProps {
   refresh?: boolean;
 }
 
+interface EmojiData {
+  native: string;
+}
+
 export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState('');
@@ -39,10 +47,11 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [showCommentInput, setShowCommentInput] = useState<Record<string, boolean>>({});
   const [commentsVisibleCount, setCommentsVisibleCount] = useState<Record<string, number>>({});
-  const [followedUsers, setFollowedUsers] = useState<string[]>([]); // userId array
+  const [followedUsers, setFollowedUsers] = useState<string[]>([]);
   const [currentUserId, setCurrentUserId] = useState('');
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   function timeAgo(dateString: string) {
     const now = new Date();
@@ -188,7 +197,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAvatar(res.data.avatar);
-        setCurrentUserId(res.data._id); // сохраняем свой ID
+        setCurrentUserId(res.data._id);
       } catch {
         console.error('Ошибка загрузки профиля');
       }
@@ -198,7 +207,25 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   if (error) return <p>{error}</p>;
 
-  function PostModal({ post, onClose }: { post: Post; onClose: () => void }) {
+  function PostModal({ post, onClose, onCommentAdded }: { post: Post; onClose: () => void; onCommentAdded: (newComment: Comment) => void }) {
+    const [commentInput, setCommentInput] = useState('');
+
+    async function handleAddCommentInModal(e: React.FormEvent, postId: string) {
+      e.preventDefault();
+      if (!commentInput) return;
+
+      try {
+        const res = await axios.post('http://localhost:3000/comments', { postId, text: commentInput }, { headers: { Authorization: `Bearer ${token}` } });
+
+        // Yorumu modal'a anında eklemek için callback fonksiyonunu çağırıyoruz
+        onCommentAdded(res.data);
+
+        setCommentInput('');
+      } catch {
+        setError('Yorum eklenirken hata oluştu');
+      }
+    }
+
     return (
       <div className={styles.modalOverlay} onClick={onClose}>
         <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
@@ -223,7 +250,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 </p>
               )}
             </div>
-            <div className={styles.flexContainer}>
+            <div className={styles.flexContainer} style={{ marginBottom: '15px' }}>
               <div className={styles.flexContainer}>
                 <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
                 <p className={styles.modalUsername}>{post.author.username}</p>
@@ -265,19 +292,24 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               </div>
             </div>
             <div className={styles.modalFooter}>
-              <form className={styles.commentInput} onSubmit={(e) => handleAddComment(e, post._id)}>
-                <input
-                  style={{ border: 'none' }}
-                  type="text"
-                  value={commentInputs[post._id] || ''}
-                  onChange={(e) =>
-                    setCommentInputs((prev) => ({
-                      ...prev,
-                      [post._id]: e.target.value,
-                    }))
-                  }
-                  placeholder="Add Comment"
-                />
+              <form className={styles.commentInput} onSubmit={(e) => handleAddCommentInModal(e, post._id)}>
+                <div className={styles.emojiBtn} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                  <img src={emoji} alt="emoji" />
+                </div>
+                {showEmojiPicker && (
+                  <div className={styles.emojiPicker}>
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(emoji: EmojiData) =>
+                        setCommentInputs((prev) => ({
+                          ...prev,
+                          [post._id]: (prev[post._id] || '') + emoji.native,
+                        }))
+                      }
+                    />
+                  </div>
+                )}
+                <input style={{ border: 'none' }} type="text" value={commentInput} onChange={(e) => setCommentInput(e.target.value)} placeholder="Add Comment" />
                 <button className={styles.commentButton} type="submit">
                   Send
                 </button>
@@ -287,6 +319,16 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
         </div>
       </div>
     );
+  }
+
+  function handleCommentAddedInModal(newComment: Comment) {
+    if (selectedPost) {
+      setSelectedPost({
+        ...selectedPost,
+        comments: [...selectedPost.comments, newComment],
+      });
+      setPosts((prevPosts) => prevPosts.map((p) => (p._id === selectedPost._id ? { ...p, comments: [...p.comments, newComment] } : p)));
+    }
   }
 
   return (
@@ -315,13 +357,13 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
               {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px', cursor: 'pointer' }} onClick={() => setSelectedPost(post)} />}
 
-              {selectedPost && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} />}
+              {selectedPost && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} onCommentAdded={handleCommentAddedInModal} />}
 
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
                   {(() => {
                     console.log(`Post ID: ${post._id}, likedByUser: ${post.likedByUser}`);
-                    return null; // JSX'in hata vermemesi için bir değer döndürmesi gerekir
+                    return null;
                   })()}
                   <img style={{ cursor: 'pointer' }} src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
 

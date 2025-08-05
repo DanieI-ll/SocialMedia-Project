@@ -119,3 +119,9 @@
   line-height: 129%;
   color: #000;
 }
+
+.emojiPicker {
+  position: absolute;
+  top: 50%;
+  left: -1%;
+}

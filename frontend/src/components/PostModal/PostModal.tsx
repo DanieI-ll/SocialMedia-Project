@@ -3,6 +3,9 @@ import axios from 'axios';
 import like from '../../assets/like.svg';
 import liked from '../../assets/liked.svg';
 import comment from '../../assets/comment.svg';
+import emoji from '../../assets/emoji.svg';
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 import styles from './PostModal.module.css'; // Yeni bir CSS dosyası oluşturabilirsin
 
 // Props tiplerini tanımlayalım
@@ -33,8 +36,13 @@ interface PostModalProps {
   updatePostInFeed: (updatedPost: Post) => void;
 }
 
+interface EmojiData {
+  native: string;
+}
+
 export default function PostModal({ post, onClose, token, currentUserId, followedUsers, setFollowedUsers, updatePostInFeed }: PostModalProps) {
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   function timeAgo(dateString: string) {
     const now = new Date();
@@ -122,7 +130,7 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
               </p>
             )}
           </div>
-          <div className={styles.flexContainer}>
+          <div className={styles.flexContainer} style={{ marginBottom: '15px' }}>
             <div className={styles.flexContainer}>
               <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
               <p className={styles.modalUsername}>{post.author.username}</p>
@@ -155,6 +163,22 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
           </div>
           <div className={styles.modalFooter}>
             <form className={styles.commentInput} onSubmit={(e) => handleAddComment(e, post._id)}>
+              <div className={styles.emojiBtn} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                <img src={emoji} alt="emoji" />
+              </div>
+              {showEmojiPicker && (
+                <div className={styles.emojiPicker}>
+                  <Picker
+                    data={data}
+                    onEmojiSelect={(emoji: EmojiData) =>
+                      setCommentInputs((prev) => ({
+                        ...prev,
+                        [post._id]: (prev[post._id] || '') + emoji.native,
+                      }))
+                    }
+                  />
+                </div>
+              )}
               <input
                 style={{ border: 'none' }}
                 type="text"

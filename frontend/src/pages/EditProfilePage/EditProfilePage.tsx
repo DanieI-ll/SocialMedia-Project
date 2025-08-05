@@ -41,7 +41,7 @@ export default function EditProfilePage() {
     formData.append('name', name);
     formData.append('username', username);
     formData.append('description', description);
-    if (avatar && avatar instanceof File) formData.append('avatar', avatar);
+    if (avatar instanceof File) formData.append('avatar', avatar);
 
     try {
       const res = await axios.put('http://localhost:3000/api/profile/me', formData, {
@@ -50,7 +50,7 @@ export default function EditProfilePage() {
       setName(res.data.name);
       setUsername(res.data.username);
       setDescription(res.data.description);
-      if (res.data.avatar) setAvatar(res.data.avatar);
+      setAvatar(res.data.avatar); // Всегда ставим строку с нового URL
       alert('Профиль обновлен');
     } catch (err) {
       console.error('Ошибка сохранения профиля', err);

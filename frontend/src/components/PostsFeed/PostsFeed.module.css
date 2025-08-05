@@ -273,7 +273,9 @@
 
 .commentInput {
   border: none;
+  display: flex;
 }
+
 .flexContainer {
   display: flex;
   align-items: center;
@@ -301,6 +303,18 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.emojiBtn {
+  margin-top: 8px;
+  margin-left: 5px;
+  margin-right: 9px;
+}
+
+.emojiPicker {
+  position: absolute;
+  top: 28.8%;
+  left: 50.5%;
 }
 
 @media (min-width: 1540px) {

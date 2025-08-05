@@ -12,8 +12,17 @@ export const getMyProfile = async (req: Request, res: Response) => {
 
 export const updateMyProfile = async (req: Request, res: Response) => {
   try {
-    const { name, username, avatar, description } = req.body;
-    const updated = await updateProfile((req as any).user.id, { name, username, avatar, description });
+    const { name, username, description } = req.body;
+    const userId = (req as any).user.id;
+
+    let avatar = undefined;
+
+    // Yeni dosya varsa Cloudinary URL'sini al
+    if (req.file) {
+      avatar = (req.file as any).path; // multer-storage-cloudinary'den direkt URL gelir
+    }
+
+    const updated = await updateProfile(userId, { name, username, avatar, description });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });
