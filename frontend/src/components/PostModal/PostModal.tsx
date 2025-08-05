@@ -8,7 +8,7 @@ import styles from './PostModal.module.css'; // Yeni bir CSS dosyası oluşturab
 // Props tiplerini tanımlayalım
 interface Comment {
   _id: string;
-  user: { username: string };
+  user: { username: string; avatar?: string }; // добавили avatar
   text: string;
 }
 
@@ -134,11 +134,15 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
           </div>
           <div className={styles.modalComments}>
             {post.comments.map((c) => (
-              <p key={c._id}>
-                <b className={styles.boldText}>{c.user.username}</b> {c.text}
-              </p>
+              <div key={c._id} className={styles.commentItem}>
+                <img src={c.user.avatar || '/default-avatar.png'} alt="avatar" className={styles.commentAvatar} />
+                <p>
+                  <b className={styles.boldText}>{c.user.username}</b> {c.text}
+                </p>
+              </div>
             ))}
           </div>
+
           <div className={styles.modalLikeComment}>
             <div className={styles.likeCommentBlock}>
               <div className={styles.likeBlock}>
