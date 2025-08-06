@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import styles from './Profile.module.css';
 import PostModal from '../PostModal/PostModal'; // PostModal'ı import edin
 
-
 // Bu arayüzleri PostModal'ın ihtiyaçlarına göre genişletiyoruz
 interface Comment {
   _id: string;
@@ -75,7 +74,14 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const [followedUsers, setFollowedUsers] = useState<string[]>([]);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Modal için post state'i
 
+  const [posts, setPosts] = useState<Post[]>([]);
+
   const isOwnProfile = !userId;
+
+  function handlePostDelete(deletedPostId: string) {
+    setPosts(posts.filter((post) => post._id !== deletedPostId));
+    setSelectedPost(null);
+  }
 
   useEffect(() => {
     if (!token) return;
@@ -154,6 +160,16 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
     }
   };
 
+  // Profile.tsx'in içindeki fonksiyonların olduğu yere ekleyin
+  async function handlePostClick(postToOpen: Post) {
+    try {
+      const postWithLikes = await axios.get<Post>(`http://localhost:3000/posts/${postToOpen._id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setSelectedPost(postWithLikes.data);
+    } catch (error) {
+      console.error('Post verisi çekilirken hata:', error);
+    }
+  }
+
   if (error) return <div>{error}</div>;
   if (!user) return <div>Загрузка...</div>;
 
@@ -198,15 +214,26 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
           <p>Посты не найдены.</p>
         ) : (
           user.posts.map((post) => (
-            <div key={post._id} onClick={() => setSelectedPost(post)}>
-              {post.image && <img src={post.image} alt="post" style={{cursor: 'pointer'}} />}
+            <div key={post._id} onClick={() => handlePostClick(post)}>
+              {post.image && <img src={post.image} alt="post" style={{ cursor: 'pointer' }} />}
             </div>
           ))
         )}
       </div>
 
       {/* Modalı koşullu olarak render etme */}
-      {selectedPost && token && myId && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} token={token} currentUserId={myId} followedUsers={followedUsers} setFollowedUsers={setFollowedUsers} updatePostInFeed={handleUpdatePost}/>}
+      {selectedPost && token && myId && (
+        <PostModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          token={token}
+          currentUserId={myId}
+          followedUsers={followedUsers}
+          setFollowedUsers={setFollowedUsers}
+          updatePostInFeed={handleUpdatePost}
+          onPostDelete={handlePostDelete} // <- добавь сюда
+        />
+      )}
     </div>
   );
 };

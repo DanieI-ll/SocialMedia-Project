@@ -41,6 +41,7 @@ export default function CreatePostForm({ token, onPostCreated, avatar, username 
       setContent('');
       setImage(null);
       onPostCreated();
+      window.location.reload();
     } catch {
       alert('Ошибка при создании поста');
     } finally {
@@ -54,9 +55,9 @@ export default function CreatePostForm({ token, onPostCreated, avatar, username 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) setImage(e.dataTransfer.files[0]);
   };
 
-    const handleFileClick = () => {
-      fileInputRef.current?.click();
-    };
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div>

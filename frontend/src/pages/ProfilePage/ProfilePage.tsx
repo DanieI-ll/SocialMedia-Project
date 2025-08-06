@@ -51,6 +51,11 @@ export default function ProfilePage({ token }: { token: string | null }) {
   // Bu state, PostModal'da kullanılacak `followedUsers` state'ini ProfilePage'de yönetir.
   const [followedUsers, setFollowedUsers] = useState<string[]>([]);
 
+  function handlePostDelete(deletedPostId: string) {
+    setPosts(posts.filter((post) => post._id !== deletedPostId));
+    setSelectedPost(null);
+  }
+
   useEffect(() => {
     async function fetchMyId() {
       try {
@@ -141,6 +146,19 @@ export default function ProfilePage({ token }: { token: string | null }) {
   if (error) return <p>{error}</p>;
   if (!user) return <p>Загрузка...</p>;
 
+  async function handlePostClick(postToOpen: Post) {
+    if (!token) return;
+    try {
+      // API'dan post'un güncel verilerini çek
+      const postWithDetails = await axios.get(`http://localhost:3000/posts/${postToOpen._id}`, { headers: { Authorization: `Bearer ${token}` } });
+
+      // Modal için selectedPost'u güncel verilerle ayarla
+      setSelectedPost(postWithDetails.data);
+    } catch (error) {
+      console.error('Post verisi çekilirken hata:', error);
+    }
+  }
+
   const isOwnProfile = myId === userId;
 
   return (
@@ -189,13 +207,24 @@ export default function ProfilePage({ token }: { token: string | null }) {
       <div className={styles.postGrid}>
         {posts.length === 0 && <p>Нет постов</p>}
         {posts.map((post) => (
-          <div key={post._id} onClick={() => setSelectedPost(post)} style={{ cursor: 'pointer' }}>
+          <div key={post._id} onClick={() => handlePostClick(post)} style={{ cursor: 'pointer' }}>
             {post.image && <img src={post.image} alt="post" />}
           </div>
         ))}
       </div>
 
-      {selectedPost && token && myId && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} token={token} currentUserId={myId} followedUsers={followedUsers} setFollowedUsers={setFollowedUsers} updatePostInFeed={handleUpdatePost} />}
+      {selectedPost && token && myId && (
+        <PostModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          token={token}
+          currentUserId={myId}
+          followedUsers={followedUsers}
+          setFollowedUsers={setFollowedUsers}
+          updatePostInFeed={handleUpdatePost}
+          onPostDelete={handlePostDelete} // Bu satırı ekledik
+        />
+      )}
     </div>
   );
 }

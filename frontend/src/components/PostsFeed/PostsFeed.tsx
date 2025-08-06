@@ -74,6 +74,20 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
     return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
   }
 
+  // Yeni: Post silme işlemini PostsFeed state'ine yansıtan fonksiyon
+  const handlePostDelete = (deletedPostId: string) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post._id !== deletedPostId));
+    setSelectedPost(null); // Modalı kapat
+  };
+
+  // Yeni: PostModal'dan gelen güncellenmiş post verisini işleyen fonksiyon
+  const updatePostInFeed = (updatedPost: Post) => {
+    setPosts((prevPosts) => prevPosts.map((post) => (post._id === updatedPost._id ? updatedPost : post)));
+    if (selectedPost && selectedPost._id === updatedPost._id) {
+      setSelectedPost(updatedPost);
+    }
+  };
+
   useEffect(() => {
     async function fetchPostsAndComments() {
       try {
@@ -81,7 +95,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const postsData = res.data.map((post) => ({
+        // Post verisini tersine çevirerek en yeniyi en üste getirin
+        const reversedPostsData = res.data.reverse();
+
+        const postsData = reversedPostsData.map((post) => ({
           ...post,
           comments: [],
           likesCount: typeof post.likesCount === 'number' ? post.likesCount : 0,
@@ -100,6 +117,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
         const commentsResults = await Promise.all(commentsPromises);
 
+        // Yorum verilerini post'a eklerken de sıralamanın bozulmadığından emin olun
         setPosts((prevPosts) =>
           prevPosts.map((post) => {
             const found = commentsResults.find((c) => c.postId === post._id);
@@ -207,8 +225,73 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   if (error) return <p>{error}</p>;
 
-  function PostModal({ post, onClose, onCommentAdded }: { post: Post; onClose: () => void; onCommentAdded: (newComment: Comment) => void }) {
+  function PostModal({ post, onClose, onCommentAdded, onPostDelete }: { post: Post; onClose: () => void; onCommentAdded: (newComment: Comment) => void; onPostDelete: (deletedPostId: string) => void; updatePostInFeed: (updatedPost: Post) => void }) {
     const [commentInput, setCommentInput] = useState('');
+    const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+
+    // PostsFeed.tsx içindeki lokal PostModal bileşeni
+    // function PostModal(...) { ... } bloğunun içine ekleyin
+
+    async function handleLikeInModal() {
+      try {
+        const res = await axios.post(`http://localhost:3000/likes/${post._id}`, null, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const updatedPost = {
+          ...post,
+          likedByUser: res.data.likedByUser,
+          likesCount: res.data.likesCount,
+        };
+
+        // Modal'daki post objesini güncelleyin
+        post = updatedPost;
+
+        // Ana bileşendeki post listesini güncelleyin
+        updatePostInFeed(updatedPost);
+
+        // Modalın yeniden render edilmesini sağlamak için bir state güncellenebilir,
+        // ancak `updatePostInFeed` zaten üst bileşeni güncellediği için
+        // genellikle bu yeterli olur.
+      } catch {
+        console.error('Liking error in modal');
+      }
+    }
+
+    // Ayarlar menüsüne ait fonksiyonlar
+    async function handleDeletePost() {
+      try {
+        await axios.delete(`http://localhost:3000/posts/${post._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        onPostDelete(post._id); // Üst bileşene postun silindiğini bildir
+        onClose(); // Modalı kapat
+      } catch (error) {
+        console.error('Post silme hatası:', error);
+      }
+    }
+
+    function handleEditPost() {
+      console.log('Post düzenleme sayfasına git');
+      setShowSettingsMenu(false);
+    }
+
+    function handleGoToPost() {
+      console.log('Post sayfasına git');
+      setShowSettingsMenu(false);
+    }
+
+    function handleCopyLink() {
+      navigator.clipboard
+        .writeText(`http://localhost:3000/posts/${post._id}`)
+        .then(() => {
+          alert('Succesfuly copied!');
+          setShowSettingsMenu(false);
+        })
+        .catch((err) => {
+          console.error('Error Copy!', err);
+        });
+    }
 
     async function handleAddCommentInModal(e: React.FormEvent, postId: string) {
       e.preventDefault();
@@ -216,39 +299,73 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
       try {
         const res = await axios.post('http://localhost:3000/comments', { postId, text: commentInput }, { headers: { Authorization: `Bearer ${token}` } });
-
-        // Yorumu modal'a anında eklemek için callback fonksiyonunu çağırıyoruz
         onCommentAdded(res.data);
-
         setCommentInput('');
       } catch {
         setError('Yorum eklenirken hata oluştu');
       }
     }
 
+    // Modaldan dışarı tıklandığında menüyü kapat
+    const handleOverlayClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onClose();
+    };
+
     return (
-      <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalOverlay} onClick={handleOverlayClick}>
+        {showSettingsMenu && <div className={styles.settingsBackdrop} onClick={() => setShowSettingsMenu(false)} />}
         <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
           <div className={styles.modalImageWrapper}>
             <img src={post.image} alt="Post" />
           </div>
           <div className={styles.modalSide}>
             <div className={styles.modalHeader}>
-              <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
-              <p className={styles.modalUsername}>{post.author.username}</p>
-              <span className={styles.dot}>•</span>
-              {post.author._id !== currentUserId && (
-                <p
-                  className={styles.followBtn}
-                  onClick={() => toggleFollow(post.author._id)}
-                  style={{
-                    cursor: 'pointer',
-                    color: followedUsers.includes(post.author._id) ? '#0095f6' : '#0095f6',
-                  }}
-                >
-                  {followedUsers.includes(post.author._id) ? 'following' : 'follow'}
-                </p>
-              )}
+              <div className={styles.headerInfo}>
+                <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
+                <p className={styles.modalUsername}>{post.author.username}</p>
+                <span className={styles.dot}>•</span>
+                {post.author._id !== currentUserId && (
+                  <p
+                    className={styles.followBtn}
+                    onClick={() => toggleFollow(post.author._id)}
+                    style={{
+                      cursor: 'pointer',
+                      color: followedUsers.includes(post.author._id) ? '#0095f6' : '#0095f6',
+                    }}
+                  >
+                    {followedUsers.includes(post.author._id) ? 'following' : 'follow'}
+                  </p>
+                )}
+              </div>
+              <div className={styles.settingsWrapper}>
+                <div className={styles.settingsIcon} onClick={() => setShowSettingsMenu(!showSettingsMenu)}>
+                  ...
+                </div>
+                {showSettingsMenu && (
+                  <div className={styles.settingsMenu}>
+                    {post.author._id === currentUserId && (
+                      <>
+                        <div className={`${styles.settingsMenuItem} ${styles.danger}`} onClick={handleDeletePost}>
+                          <p style={{ color: 'red' }}> Delete</p>
+                        </div>
+                        <div className={styles.settingsMenuItem} onClick={handleEditPost}>
+                          Edit
+                        </div>
+                      </>
+                    )}
+                    <div className={styles.settingsMenuItem} onClick={handleGoToPost}>
+                      Go to post
+                    </div>
+                    <div className={styles.settingsMenuItem} onClick={handleCopyLink}>
+                      Copy link
+                    </div>
+                    <div className={styles.settingsMenuItem} onClick={() => setShowSettingsMenu(false)}>
+                      Cancel
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className={styles.flexContainer} style={{ marginBottom: '15px' }}>
               <div className={styles.flexContainer}>
@@ -265,7 +382,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 <div key={c._id} className={styles.commentItem}>
                   <img src={c.user.avatar || '/default-avatar.png'} alt="avatar" className={styles.commentAvatar} />
                   <p>
-                    <b className={styles.boldText}>{c.user.username}</b> {c.text}
+                    <b className={styles.boldText}>{c.user?.username ?? 'Неизвестный'}:</b> {c.text}
                   </p>
                 </div>
               ))}
@@ -273,8 +390,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
             <div className={styles.modalLikeComment}>
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
-                  <img style={{ cursor: 'pointer' }} src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
-
+                  <img style={{ cursor: 'pointer' }} src={post.likedByUser ? liked : like} alt="like" onClick={handleLikeInModal} />
                   <img
                     src={comment}
                     alt="comment"
@@ -357,7 +473,15 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
               {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px', cursor: 'pointer' }} onClick={() => setSelectedPost(post)} />}
 
-              {selectedPost && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} onCommentAdded={handleCommentAddedInModal} />}
+              {selectedPost && (
+                <PostModal
+                  post={selectedPost}
+                  onClose={() => setSelectedPost(null)}
+                  onCommentAdded={handleCommentAddedInModal}
+                  onPostDelete={handlePostDelete} // Yeni prop
+                  updatePostInFeed={updatePostInFeed} // Yeni prop
+                />
+              )}
 
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
@@ -401,7 +525,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 <div>
                   {hasMore && (
                     <a onClick={() => toggleComments(post._id)} className={styles.seeMoreBtn}>
-                      {isExpanded ? 'View less comments' : 'View all comments'}
+                      {isExpanded ? 'View less comments ' : 'View all comments'}
                     </a>
                   )}
                 </div>
@@ -420,7 +544,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                           [post._id]: e.target.value,
                         }))
                       }
-                      placeholder="Add comment"
+                      placeholder="Add comment..."
                     />
                     <button style={{ marginLeft: '-5px' }} className={styles.commentButton} type="submit">
                       Send
@@ -436,8 +560,8 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
         <div className={styles.img}>
           <img src={seeAll} alt="seeAll" />
         </div>
-        <p className={styles.mainText}>You've seen all the updates</p>
-        <p className={styles.secondText}>You have viewed all new publications</p>
+        <p className={styles.mainText}>Tüm güncellemeleri gördünüz</p>
+        <p className={styles.secondText}>Tüm yeni yayınları görüntülediniz</p>
       </div>
     </div>
   );

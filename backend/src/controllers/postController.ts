@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { createPost, getAllPosts, getUserPosts, updatePost, deletePost } from '../services/postService';
 import Like from '../db/models/Like';
+import Post from '../db/models/Post';
+import Comment from '../db/models/Comment';
 
 export const createPostController = async (req: Request, res: Response) => {
   try {
@@ -27,7 +29,7 @@ export const getPostsController = async (req: Request, res: Response) => {
           likesCount,
           likedByUser,
         };
-      })
+      }),
     );
 
     res.json(postsWithLikes);
@@ -56,5 +58,42 @@ export const deletePostController = async (req: Request, res: Response) => {
     res.json({ message: 'Пост удалён' });
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });
+  }
+};
+
+export const getPostByIdController = async (req: Request, res: Response) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId).populate('author', 'username avatar');
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post bulunamadı.' });
+    }
+
+    const likesCount = await Like.countDocuments({ post: postId });
+
+    // req nesnesine any türü atayarak user özelliğine erişiyoruz
+    const userId = (req as any).user?.id;
+    let likedByUser = false;
+
+    if (userId) {
+      const like = await Like.findOne({ post: postId, user: userId });
+      likedByUser = !!like;
+    }
+
+    const comments = await Comment.find({ post: postId }).populate('user', 'username avatar');
+
+    const postWithDetails = {
+      ...post.toObject(),
+      likesCount,
+      likedByUser,
+      comments,
+    };
+
+    res.status(200).json(postWithDetails);
+  } catch (error) {
+    console.error('Post verisi çekilirken hata:', error);
+    res.status(500).json({ message: 'Sunucu hatası.' });
   }
 };

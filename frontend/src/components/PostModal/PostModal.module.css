@@ -189,8 +189,85 @@
   margin-right: 9px;
 }
 
-.emojiPicker{
+.emojiPicker {
   position: absolute;
   top: 28.8%;
   left: 50.5%;
+}
+
+.modalHeader {
+  /* ... diğer stiller ... */
+  position: relative; /* Üç nokta ikonunun konumlandırılması için */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+}
+
+/* ... diğer stiller ... */
+
+.settingsWrapper {
+  position: relative;
+}
+
+.settingsIcon {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  font-weight: bold;
+  position: absolute;
+  right: -3px;
+  bottom: -15px;
+}
+
+/* Ayarlar menüsü açıldığında arka planı koyulaştıran yeni stil */
+.settingsBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Yarı saydam siyah */
+  z-index: 99; /* modalOverlay'in altında ama içeriğin üzerinde olmalı */
+}
+
+/* Ayarlar menüsünün stili */
+.settingsMenu {
+  position: absolute;
+  top: 150px;
+  right: 210px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  border-radius: 12px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.settingsMenuItem {
+  padding: 16px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  font-size: 14px;
+}
+
+.settingsMenuItem:last-child {
+  border-bottom: none;
+}
+
+.settingsMenuItem:hover {
+  background-color: #f0f0f0;
+}
+
+.settingsMenuItem.danger {
+  color: #ed4956;
+  font-weight: bold;
 }
