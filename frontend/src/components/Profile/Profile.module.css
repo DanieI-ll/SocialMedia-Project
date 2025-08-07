@@ -95,3 +95,20 @@
   line-height: 129%;
   color: #000;
 }
+
+.websiteContainer {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 129%;
+  color: #00376b;
+  margin-top: 20px;
+  transition: 0.3s;
+
+  display: flex;
+  gap: 4px;
+}
+
+.websiteContainer:hover {
+  color: #006acd !important;
+}

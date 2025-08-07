@@ -1,36 +1,41 @@
 import styles from './Footer.module.css';
-
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+interface FooterProps {
+  setIsSearchOpen: (value: boolean) => void;
+  setIsNotificationsOpen: (value: boolean) => void;
+  setIsCreateOpen: (value: boolean) => void;
+}
+
+const Footer = ({ setIsSearchOpen, setIsNotificationsOpen, setIsCreateOpen }: FooterProps) => {
   return (
-    <>
-      <footer className={styles.footer}>
-        <div className={styles.footerNavbar}>
-          <ul className={styles.footerElements}>
-            <Link className={styles.footerLinks} to="/posts">
-              Home
-            </Link>
-            <Link className={styles.footerLinks} to="/">
-              Search
-            </Link>
-            <Link className={styles.footerLinks} to="/explore">
-              Explore
-            </Link>
-            <Link className={styles.footerLinks} to="/messenges">
-              Messages
-            </Link>
-            <Link className={styles.footerLinks} to="/notifications">
-              Notifications
-            </Link>
-            <Link className={styles.footerLinks} to="/">
-              Create
-            </Link>
-          </ul>
-          <p>© 2024 ICHgram</p>
-        </div>
-      </footer>
-    </>
+    <footer className={styles.footer}>
+      <div className={styles.footerNavbar}>
+        <Link className={styles.footerElement} to="/posts">
+          <p>Home</p>
+        </Link>
+
+        <a className={styles.footerElement} onClick={() => setIsSearchOpen(true)}>
+          <p>Search</p>
+        </a>
+
+        <Link className={styles.footerElement} to="/explore">
+          <p>Explore</p>
+        </Link>
+
+        <Link className={styles.footerElement} to="/messenger">
+          <p>Messages</p>
+        </Link>
+
+        <a className={styles.footerElement} onClick={() => setIsNotificationsOpen(true)}>
+          <p>Notifications</p>
+        </a>
+
+        <a className={styles.footerElement} onClick={() => setIsCreateOpen(true)}>
+          <p>Create</p>
+        </a>
+      </div>
+    </footer>
   );
 };
 

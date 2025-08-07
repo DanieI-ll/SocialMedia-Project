@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import styles from './CreatePostForm.module.css';
 import upload from '../../assets/upload.svg';
@@ -25,6 +25,19 @@ export default function CreatePostForm({ token, onPostCreated, avatar, username 
   const [isDragOver, setIsDragOver] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (image) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(image);
+    } else {
+      setImagePreviewUrl(null);
+    }
+  }, [image]);
 
   const handleSubmit = async () => {
     if (!description.trim() && !image) return;
@@ -86,10 +99,22 @@ export default function CreatePostForm({ token, onPostCreated, avatar, username 
           onDragLeave={() => setIsDragOver(false)}
           onDrop={handleDrop}
         >
-          {image ? <p>{image.name}</p> : <img src={upload} alt="img" />}
-          <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => setImage(e.target.files?.[0] || null)} />
+          {imagePreviewUrl ? <img src={imagePreviewUrl} alt="Preview" className={styles.imagePreview} /> : <img src={upload} alt="img" />}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setImage(file);
+              // Dosya seçildikten sonra dosya girdisini temizle ki aynı dosya tekrar seçilebilsin
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+              }
+            }}
+          />
         </div>
-
         {/* Textarea + Emoji + Sayaç */}
         <div className={styles.textareaWrapper}>
           <textarea value={description} onChange={(e) => e.target.value.length <= 2200 && setContent(e.target.value)} placeholder="Что у вас нового?" />

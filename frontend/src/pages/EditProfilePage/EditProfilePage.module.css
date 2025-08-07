@@ -122,3 +122,15 @@ textarea.input {
   right: 29%;
   top: 59%;
 }
+
+.websiteContainer a {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 129%;
+  color: #00376b;
+  margin-top: 5px;
+
+  display: flex;
+  gap: 7px;
+}

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
 import { Link } from 'react-router-dom';
+import websiteImg from '../../assets/website.svg';
 
 import styles from './Profile.module.css';
 import PostModal from '../PostModal/PostModal'; // PostModal'ı import edin
@@ -55,6 +56,7 @@ interface User {
   username?: string;
   posts: Post[];
   description?: string;
+  website?: string;
 }
 
 interface ProfileProps {
@@ -69,6 +71,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const [followers, setFollowers] = useState<FollowerRelation[]>([]);
   const [following, setFollowing] = useState<FollowingRelation[]>([]);
   const [description, setDescription] = useState('');
+  const [website, setWebSite] = useState('');
   const [error, setError] = useState('');
   const [myId, setMyId] = useState<string | null>(null);
   const [followedUsers, setFollowedUsers] = useState<string[]>([]);
@@ -99,6 +102,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         // Gelen verilerle state'leri güncelleyin
         setUser(profileRes.data);
         setDescription(profileRes.data.description || '');
+        setWebSite(profileRes.data.website || '');
         setAvatarUrl(profileRes.data.avatar);
         setFollowers(followersRes.data.followers);
         setFollowing(followingRes.data.following);
@@ -207,6 +211,12 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
             </div>
           </div>
           <p className={styles.descriptionP}>{description}</p>
+          {website && (
+            <a className={styles.websiteContainer} href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer">
+              <img src={websiteImg} alt="website" />
+              {website}
+            </a>
+          )}
         </div>
       </div>
       <div className={styles.postGrid}>

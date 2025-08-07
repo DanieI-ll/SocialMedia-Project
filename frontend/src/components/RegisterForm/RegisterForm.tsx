@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import styles from './RegisterForm.module.css';
 
+import EmailVerificationForm from '../EmailVerificationForm/EmailVerificationForm';
+
 interface RegisterFormProps {
   onSuccess: () => void;
 }
@@ -17,6 +19,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [message, setMessage] = useState('');
   const [emailError, setEmailError] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +33,9 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         name,
         password,
       });
-      onSuccess();
+      // Kayıt başarılı olduğunda state'i güncelleyip
+      // kullanıcıyı doğrulama ekranına yönlendiririz
+      setIsRegistered(true);
     } catch (error) {
       const err = error as AxiosError<{ field?: string; message?: string }>;
       if (err.response?.data?.field === 'email') {
@@ -42,6 +47,11 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       }
     }
   };
+
+  // isRegistered true ise doğrulama formunu gösteririz
+  if (isRegistered) {
+    return <EmailVerificationForm email={email} onSuccess={onSuccess} />;
+  }
 
   return (
     <div>

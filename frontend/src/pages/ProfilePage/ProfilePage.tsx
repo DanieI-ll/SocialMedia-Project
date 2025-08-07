@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import styles from './ProfilePage.module.css';
 import axios from 'axios';
 import PostModal from '../../components/PostModal/PostModal';
+import websiteImg from '../../assets/website.svg';
 
 interface User {
   _id: string;
   username: string;
   avatar?: string;
   description?: string;
+  website?: string;
   isFollowing?: boolean;
 }
 
@@ -201,6 +203,13 @@ export default function ProfilePage({ token }: { token: string | null }) {
           <div className={styles.discription}>
             <p>{user.description}</p>
           </div>
+
+          {user.website && (
+            <a className={styles.websiteContainer} href={user.website.startsWith('http') ? user.website : `https://${user.website}`} target="_blank" rel="noopener noreferrer">
+              <img src={websiteImg} alt="website" />
+              {user.website}
+            </a>
+          )}
         </div>
       </div>
 

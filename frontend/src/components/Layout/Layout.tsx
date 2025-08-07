@@ -18,6 +18,7 @@ import { AuthContext } from '../../context/AuthContext/AuthContext';
 import { UserSearch } from '../UserSearch/UserSearch.tsx';
 import CreatePostForm from '../CreatePostForm/CreatePostForm.tsx';
 import Notifications from '../Notifications/Notifications.tsx';
+import { LogoutButton } from '../LogoutButton/LogoutButton.tsx';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -88,11 +89,13 @@ export default function Layout({ children }: LayoutProps) {
             <p className={styles.profileText}>Profile</p>
           </Link>
         </div>
+
+        <LogoutButton />
       </nav>
 
       <main className={styles.content}>
         {children}
-        <Footer />
+        <Footer setIsSearchOpen={setIsSearchOpen} setIsNotificationsOpen={setIsNotificationsOpen} setIsCreateOpen={setIsCreateOpen} />
       </main>
 
       {/* Search Modal */}

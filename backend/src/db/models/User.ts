@@ -29,7 +29,7 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: 'https://www.svgrepo.com/show/421823/user-people-man.svg',
+      default: 'https://www.svgrepo.com/show/535711/user.svg',
     },
     resetPasswordToken: {
       type: String,
@@ -39,8 +39,23 @@ const userSchema = new Schema(
       type: Date,
       default: null as any,
     },
-    description: { type: String, default: 'not give a description' },
+    description: { type: String, default: 'Hi, I am using Ichgram!' },
+    website: { type: String },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      default: null,
+    },
+    verificationCodeExpires: {
+      type: Date,
+      default: null,
+    },
   },
+
   { versionKey: false, timestamps: true },
 );
 
@@ -52,6 +67,8 @@ interface IUser extends Document {
   avatar?: string;
   resetPasswordToken?: string | null;
   resetPasswordExpires?: Date | null;
+  description?: string;
+  website?: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

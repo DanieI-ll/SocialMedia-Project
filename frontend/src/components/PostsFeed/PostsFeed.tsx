@@ -560,8 +560,8 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
         <div className={styles.img}>
           <img src={seeAll} alt="seeAll" />
         </div>
-        <p className={styles.mainText}>Tüm güncellemeleri gördünüz</p>
-        <p className={styles.secondText}>Tüm yeni yayınları görüntülediniz</p>
+        <p className={styles.mainText}>You've seen all the updates</p>
+        <p className={styles.secondText}>You have viewed all new publications</p>
       </div>
     </div>
   );

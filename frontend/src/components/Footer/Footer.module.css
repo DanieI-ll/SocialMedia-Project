@@ -18,13 +18,22 @@
   color: #737373;
 }
 
+.footerNavbar {
+  display: flex;
+  gap: 40px;
+  margin-top: 50px;
+  margin-bottom: 60px;
+}
+
 .footerNavbar p {
   text-align: center;
-  margin-top: 50px;
   font-family: var(--font-family);
   font-weight: 400;
   font-size: 12px;
   line-height: 133%;
   color: #737373;
-  margin-bottom: 60px;
+}
+
+.footerNavbar a {
+  cursor: pointer;
 }

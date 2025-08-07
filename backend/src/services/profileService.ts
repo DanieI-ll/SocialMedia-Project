@@ -12,7 +12,7 @@ export const getProfile = async (userId: string) => {
   return { ...user, posts };
 };
 
-export const updateProfile = async (userId: string, data: { name?: string; username?: string; avatar?: string; description?: string }) => {
+export const updateProfile = async (userId: string, data: { name?: string; username?: string; avatar?: string; description?: string; website?: string }) => {
   const updated = await User.findByIdAndUpdate(userId, data, { new: true }).select('-password').lean();
   if (!updated) throw new Error('Пользователь не найден');
   return updated;

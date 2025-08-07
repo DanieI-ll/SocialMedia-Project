@@ -76,3 +76,16 @@
 .userLink:hover .username {
   text-decoration: underline;
 }
+
+.resentWrapper h4 {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 125%;
+  color: #000;
+  margin-top: 15%;
+}
+
+.userResultResent {
+  margin-top: 15px;
+}

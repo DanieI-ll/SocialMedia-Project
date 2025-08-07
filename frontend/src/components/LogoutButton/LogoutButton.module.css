@@ -1,0 +1,14 @@
+.logoutBtn {
+  margin-top: 150px;
+  background-color: white !important;
+  color: black;
+  display: flex;
+  margin-left: 22px;
+  gap: 19px;
+  cursor: pointer;
+}
+
+.logoutText {
+  margin-top: 4.5px;
+  cursor: pointer;
+}

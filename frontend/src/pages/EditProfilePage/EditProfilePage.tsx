@@ -2,12 +2,14 @@ import { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
 import styles from './EditProfilePage.module.css';
+import websiteImg from '../../assets/website.svg';
 
 export default function EditProfilePage() {
   const { token } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [description, setDescription] = useState('');
+  const [website, setWebSite] = useState('');
   const [avatar, setAvatar] = useState<File | string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +22,7 @@ export default function EditProfilePage() {
         setName(res.data.name || '');
         setUsername(res.data.username || '');
         setDescription(res.data.description || '');
+        setWebSite(res.data.website || '');
         setAvatar(res.data.avatar || null);
       } catch (err) {
         console.error('Ошибка загрузки профиля', err);
@@ -41,6 +44,7 @@ export default function EditProfilePage() {
     formData.append('name', name);
     formData.append('username', username);
     formData.append('description', description);
+    formData.append('website', website);
     if (avatar instanceof File) formData.append('avatar', avatar);
 
     try {
@@ -50,6 +54,7 @@ export default function EditProfilePage() {
       setName(res.data.name);
       setUsername(res.data.username);
       setDescription(res.data.description);
+      setWebSite(res.data.website);
       setAvatar(res.data.avatar); // Всегда ставим строку с нового URL
       alert('Профиль обновлен');
     } catch (err) {
@@ -73,6 +78,13 @@ export default function EditProfilePage() {
           <div>
             <p className={styles.usernameContainer}>{username || 'New User'}</p>
             <p className={styles.descriptionContainer}>{description}</p>
+            <p className={styles.websiteContainer}>
+              {' '}
+              <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer">
+                <img src={websiteImg} alt="website" />
+                {website}
+              </a>
+            </p>
           </div>
           <label className={styles.inputImg}>
             New photo
@@ -85,7 +97,7 @@ export default function EditProfilePage() {
           <input className={styles.input} type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" required />
 
           <p className={styles.header}>Website</p>
-          <input className={styles.input} type="text" placeholder="Website" />
+          <input className={styles.input} type="text" value={website} onChange={(e) => setWebSite(e.target.value)} placeholder="Website" />
 
           <p className={styles.header}>About</p>
           <div className={styles.flexBtn}>

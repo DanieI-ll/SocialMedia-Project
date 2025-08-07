@@ -25,7 +25,8 @@
   transition: border-color 0.3s;
   margin-bottom: 15px;
   width: 573px;
-  height: 519px;
+  height: 518px;
+  border-bottom-left-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -124,4 +125,9 @@
   position: absolute;
   top: 50%;
   left: -1%;
+}
+
+.imagePreview {
+  width: 573px;
+  height: 515px;
 }

@@ -12,7 +12,7 @@ export const getMyProfile = async (req: Request, res: Response) => {
 
 export const updateMyProfile = async (req: Request, res: Response) => {
   try {
-    const { name, username, description } = req.body;
+    const { name, username, description, website } = req.body;
     const userId = (req as any).user.id;
 
     let avatar = undefined;
@@ -22,7 +22,7 @@ export const updateMyProfile = async (req: Request, res: Response) => {
       avatar = (req.file as any).path; // multer-storage-cloudinary'den direkt URL gelir
     }
 
-    const updated = await updateProfile(userId, { name, username, avatar, description });
+    const updated = await updateProfile(userId, { name, username, avatar, description, website });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });
