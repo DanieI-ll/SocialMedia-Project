@@ -69,6 +69,10 @@ interface IUser extends Document {
   resetPasswordExpires?: Date | null;
   description?: string;
   website?: string;
+
+  isVerified?: boolean;
+  verificationCode?: string | null;
+  verificationCodeExpires?: Date | null;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

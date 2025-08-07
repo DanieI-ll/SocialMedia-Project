@@ -1,7 +1,7 @@
 // EmailVerificationForm.tsx
 import { useState } from 'react';
 import axios from 'axios';
-import styles from './RegisterForm.module.css';
+import styles from './EmailVerificationForm.module.css';
 
 interface EmailVerificationFormProps {
   email: string;

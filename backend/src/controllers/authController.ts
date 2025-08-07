@@ -13,13 +13,55 @@ export const register = async (req: Request, res: Response) => {
     if (errors.length) return res.status(400).json({ errors });
 
     const user = await registerUser(req.body);
+
+    // 6 haneli kod üret
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.verificationCode = code;
+    user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika geçerli
+    await user.save();
+
+    // Mail gönder
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
+    });
+
+    await transporter.sendMail({
+      to: user.email,
+      subject: 'Ichgram Email Verification Code',
+      html: `<p>Your verification code is: <b>${code}</b><br/>This code is valid for 15 minutes.</p>`,
+    });
+
     res.status(201).json({ user });
   } catch (err: any) {
-    // Eğer service'ten field gelirse
     if (err.field) {
       return res.status(400).json({ field: err.field, message: err.message });
     }
     res.status(400).json({ message: err.message || 'Ошибка регистрации' });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) return res.status(400).json({ message: 'Email ve kod gerekli' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+
+    if (user.verificationCode !== code || !user.verificationCodeExpires || user.verificationCodeExpires < new Date()) {
+      return res.status(400).json({ message: 'Doğrulama kodu hatalı veya süresi dolmuş' });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = null;
+    user.verificationCodeExpires = null;
+    await user.save();
+
+    res.json({ message: 'E-posta başarıyla doğrulandı' });
+  } catch (err) {
+    res.status(500).json({ message: 'Sunucu hatası' });
   }
 };
 

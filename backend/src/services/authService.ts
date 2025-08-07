@@ -32,6 +32,10 @@ export const loginUser = async (login: string, password: string) => {
   });
   if (!user) throw new Error('User not found');
 
+  if (!user.isVerified) {
+    throw new Error('Please verify your email before logging in.');
+  }
+
   const isValid = await comparePasswords(password, user.password);
   if (!isValid) throw new Error('Invalid password');
 
