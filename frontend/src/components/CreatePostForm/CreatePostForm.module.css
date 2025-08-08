@@ -129,5 +129,6 @@
 
 .imagePreview {
   width: 573px;
-  height: 515px;
+  height: 518px;
+  border-bottom-left-radius: 12px;
 }

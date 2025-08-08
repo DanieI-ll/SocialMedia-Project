@@ -31,6 +31,9 @@ export default function App() {
   const [avatar, setAvatar] = useState('');
   const [username, setUsername] = useState('');
 
+  const [currentUserId] = useState<string>('');
+  const [followedUsers, setFollowedUsers] = useState<string[]>([]);
+
   // Профиль загружаем один раз после логина
   useEffect(() => {
     if (!token) return;
@@ -117,7 +120,8 @@ export default function App() {
           element={
             <PrivateRoute>
               <Layout>
-                <Explore />
+                {/* Explore bileşenine gerekli prop'ları burada iletiyoruz */}
+                <Explore token={token || ''} currentUserId={currentUserId} followedUsers={followedUsers} setFollowedUsers={setFollowedUsers} />
               </Layout>
             </PrivateRoute>
           }

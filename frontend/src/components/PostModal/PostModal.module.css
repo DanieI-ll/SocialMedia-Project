@@ -271,3 +271,39 @@
   color: #ed4956;
   font-weight: bold;
 }
+
+.modalWrapperEdit {
+  position: absolute;
+  bottom: 260px;
+  left: 737px;
+  display: flex;
+  flex-direction: column;
+}
+
+.editDescription {
+  width: 410px;
+  height: 268px;
+  resize: none;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 133%;
+  color: #000;
+  padding: 10px;
+}
+
+.editButtons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.editButtons button {
+  color: black;
+  width: 100px !important;
+  background-color: rgb(134, 172, 248) !important;
+  transition: 0.3s;
+}
+
+.editButtons button:hover {
+  background-color: rgb(38, 110, 255) !important;
+}

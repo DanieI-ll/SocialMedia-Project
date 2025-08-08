@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import like from '../../assets/like.svg';
 import liked from '../../assets/liked.svg';
@@ -33,7 +34,7 @@ interface PostModalProps {
   followedUsers: string[];
   setFollowedUsers: React.Dispatch<React.SetStateAction<string[]>>;
   updatePostInFeed: (updatedPost: Post) => void;
-  onPostDelete: (deletedPostId: string) => void; // <-- Bunu gerçekten props olarak alıyor mu?
+  onPostDelete: (deletedPostId: string) => void;
 }
 
 interface EmojiData {
@@ -44,6 +45,16 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
   const [commentInput, setCommentInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const navigate = useNavigate();
+
+  // Düzenleme (Edit) için yeni state'ler
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedDescription, setEditedDescription] = useState(post.description);
+
+  function handleProfileClick() {
+    onClose(); // Önce açık olan modalı kapat
+    navigate(`/profile/${post.author._id}`); // Ardından kullanıcıyı profil sayfasına yönlendir
+  }
 
   async function handleDeletePost() {
     try {
@@ -58,9 +69,39 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
     }
   }
 
+  // Yeni Düzenleme İşlevi: isEditing state'ini true yapar
   function handleEditPost() {
-    console.log('Post düzenleme sayfasına git');
+    setIsEditing(true);
     setShowSettingsMenu(false);
+  }
+
+  // Yeni Kaydetme İşlevi: API'ye PUT isteği gönderir
+  async function handleSaveEdit() {
+    try {
+      const res = await axios.put(
+        `http://localhost:3000/posts/${post._id}`,
+        { description: editedDescription }, // Yalnızca değişen veriyi gönderiyoruz
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      // Sunucudan dönen veri muhtemelen sadece description'ı içeriyor.
+      // Bu nedenle, mevcut post verisini koruyarak yeni bir obje oluşturuyoruz.
+      const updatedPost = {
+        ...post, // Mevcut tüm post verisini koru
+        description: res.data.description, // Yalnızca güncellenen alanı (description) üzerine yaz
+      };
+
+      updatePostInFeed(updatedPost); // Ana akıştaki postu güncel verilerle güncelle
+      setIsEditing(false); // Düzenleme modundan çık
+    } catch (error) {
+      console.error('Post düzenleme hatası:', error);
+    }
+  }
+
+  // Yeni İptal İşlevi: Düzenlemeyi iptal eder ve state'i sıfırlar
+  function handleCancelEdit() {
+    setEditedDescription(post.description); // Eski açıklamaya geri döner
+    setIsEditing(false); // Düzenleme modundan çıkar
   }
 
   function handleGoToPost() {
@@ -160,8 +201,16 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
         <div className={styles.modalSide}>
           <div className={styles.modalHeader}>
             <div className={styles.headerInfo}>
-              <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
-              <p className={styles.modalUsername}>{post.author.username}</p>
+              <img
+                src={post.author.avatar || '/default-avatar.png'}
+                alt="avatar"
+                className={styles.modalAvatar}
+                onClick={handleProfileClick} // <<-- Yeni Eklendi
+                style={{ cursor: 'pointer' }} // Kullanıcıya tıklanabilir olduğunu belirtmek için
+              />
+              <p className={styles.modalUsername} onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
+                {post.author.username}
+              </p>
               <span className={styles.dot}>•</span>
               {post.author._id !== currentUserId && (
                 <p
@@ -207,20 +256,40 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
           </div>
           <div className={styles.flexContainer} style={{ marginBottom: '15px' }}>
             <div className={styles.flexContainer}>
-              <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
-              <p className={styles.modalUsername}>{post.author.username}</p>
+              <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar}/>
+              <p className={styles.modalUsername}>
+                {post.author.username}
+              </p>
             </div>
             <span className={styles.space}></span>
             <div>
-              <p className={styles.postDescripton}>{post.description}</p>
+              {isEditing ? (
+                <div className={styles.modalWrapperEdit}>
+                  <textarea className={styles.editDescription} value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} />
+                  <div className={styles.editButtons}>
+                    <button className={styles.saveButton} onClick={handleSaveEdit}>
+                      Save
+                    </button>
+                    <button className={styles.cancelButton} onClick={handleCancelEdit}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className={styles.postDescripton}>{post.description}</p>
+              )}
             </div>
           </div>
           <div className={styles.modalComments}>
-            {post.comments.map((c) => (
+            {post.comments?.map((c) => (
               <div key={c._id} className={styles.commentItem}>
-                <img src={c.user.avatar || '/default-avatar.png'} alt="avatar" className={styles.commentAvatar} />
+                <img src={c.user.avatar || '/default-avatar.png'} alt="avatar" className={styles.commentAvatar}/>
                 <p>
-                  <b className={styles.boldText}>{c.user.username}</b> {c.text}
+                  <b className={styles.boldText}>
+                    {' '}
+                    {c.user.username}
+                  </b>{' '}
+                  {c.text}
                 </p>
               </div>
             ))}

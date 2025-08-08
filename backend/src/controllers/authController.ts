@@ -14,14 +14,12 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await registerUser(req.body);
 
-    // 6 haneli kod üret
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     user.verificationCode = code;
     user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika geçerli
     await user.save();
 
-    // Mail gönder
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },

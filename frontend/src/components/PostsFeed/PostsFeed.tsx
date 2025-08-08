@@ -51,7 +51,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [currentUserId, setCurrentUserId] = useState('');
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  // const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   function timeAgo(dateString: string) {
     const now = new Date();
@@ -225,12 +225,15 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   if (error) return <p>{error}</p>;
 
-  function PostModal({ post, onClose, onCommentAdded, onPostDelete }: { post: Post; onClose: () => void; onCommentAdded: (newComment: Comment) => void; onPostDelete: (deletedPostId: string) => void; updatePostInFeed: (updatedPost: Post) => void }) {
+  // Yeni PostModal bileşeni
+  function PostModal({ post, onClose, onCommentAdded, onPostDelete, updatePostInFeed }: { post: Post; onClose: () => void; onCommentAdded: (newComment: Comment) => void; onPostDelete: (deletedPostId: string) => void; updatePostInFeed: (updatedPost: Post) => void }) {
     const [commentInput, setCommentInput] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
-    // PostsFeed.tsx içindeki lokal PostModal bileşeni
-    // function PostModal(...) { ... } bloğunun içine ekleyin
+    // DÜZENLEME İÇİN YENİ STATE'LER
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedDescription, setEditedDescription] = useState(post.description);
 
     async function handleLikeInModal() {
       try {
@@ -244,36 +247,54 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           likesCount: res.data.likesCount,
         };
 
-        // Modal'daki post objesini güncelleyin
-        post = updatedPost;
-
-        // Ana bileşendeki post listesini güncelleyin
         updatePostInFeed(updatedPost);
-
-        // Modalın yeniden render edilmesini sağlamak için bir state güncellenebilir,
-        // ancak `updatePostInFeed` zaten üst bileşeni güncellediği için
-        // genellikle bu yeterli olur.
       } catch {
         console.error('Liking error in modal');
       }
     }
 
-    // Ayarlar menüsüne ait fonksiyonlar
     async function handleDeletePost() {
       try {
         await axios.delete(`http://localhost:3000/posts/${post._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        onPostDelete(post._id); // Üst bileşene postun silindiğini bildir
-        onClose(); // Modalı kapat
+        onPostDelete(post._id);
+        onClose();
       } catch (error) {
         console.error('Post silme hatası:', error);
       }
     }
 
+    // YENİ DÜZENLEME İŞLEVİ
     function handleEditPost() {
-      console.log('Post düzenleme sayfasına git');
+      setIsEditing(true);
       setShowSettingsMenu(false);
+    }
+
+    // YENİ KAYDETME İŞLEVİ
+    async function handleSaveEdit() {
+      try {
+        const res = await axios.put(`http://localhost:3000/posts/${post._id}`, { description: editedDescription }, { headers: { Authorization: `Bearer ${token}` } });
+
+        // Sunucudan dönen yanıt, muhtemelen sadece "description" alanını içeriyor.
+        // Bu nedenle, mevcut post objesinin tüm bilgilerini koruyarak sadece "description"ı güncelleyin.
+        const updatedPost = {
+          ...post,
+          description: res.data.description,
+        };
+
+        // Ana akışı ve modalın kendi state'ini güncelleyin
+        updatePostInFeed(updatedPost);
+        setIsEditing(false);
+      } catch (error) {
+        console.error('Post düzenleme hatası:', error);
+      }
+    }
+
+    // YENİ İPTAL İŞLEVİ
+    function handleCancelEdit() {
+      setEditedDescription(post.description);
+      setIsEditing(false);
     }
 
     function handleGoToPost() {
@@ -293,12 +314,12 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
         });
     }
 
-    async function handleAddCommentInModal(e: React.FormEvent, postId: string) {
+    async function handleAddCommentInModal(e: React.FormEvent) {
       e.preventDefault();
       if (!commentInput) return;
 
       try {
-        const res = await axios.post('http://localhost:3000/comments', { postId, text: commentInput }, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.post('http://localhost:3000/comments', { postId: post._id, text: commentInput }, { headers: { Authorization: `Bearer ${token}` } });
         onCommentAdded(res.data);
         setCommentInput('');
       } catch {
@@ -306,7 +327,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
       }
     }
 
-    // Modaldan dışarı tıklandığında menüyü kapat
     const handleOverlayClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       onClose();
@@ -374,7 +394,22 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               </div>
               <span className={styles.space}></span>
               <div>
-                <p className={styles.postDescripton}>{post.description}</p>
+                {/* DÜZENLEME MODU KONTROLÜ */}
+                {isEditing ? (
+                  <div className={styles.modalWrapperEdit}>
+                    <textarea className={styles.editDescription} value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} />
+                    <div className={styles.editButtons}>
+                      <button className={styles.saveButton} onClick={handleSaveEdit}>
+                        Save
+                      </button>
+                      <button className={styles.cancelButton} onClick={handleCancelEdit}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className={styles.postDescripton}>{post.description}</p>
+                )}
               </div>
             </div>
             <div className={styles.modalComments}>
@@ -408,21 +443,13 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               </div>
             </div>
             <div className={styles.modalFooter}>
-              <form className={styles.commentInput} onSubmit={(e) => handleAddCommentInModal(e, post._id)}>
+              <form className={styles.commentInput} onSubmit={(e) => handleAddCommentInModal(e)}>
                 <div className={styles.emojiBtn} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                   <img src={emoji} alt="emoji" />
                 </div>
                 {showEmojiPicker && (
                   <div className={styles.emojiPicker}>
-                    <Picker
-                      data={data}
-                      onEmojiSelect={(emoji: EmojiData) =>
-                        setCommentInputs((prev) => ({
-                          ...prev,
-                          [post._id]: (prev[post._id] || '') + emoji.native,
-                        }))
-                      }
-                    />
+                    <Picker data={data} onEmojiSelect={(emoji: EmojiData) => setCommentInput((prev) => (prev || '') + emoji.native)} />
                   </div>
                 )}
                 <input style={{ border: 'none' }} type="text" value={commentInput} onChange={(e) => setCommentInput(e.target.value)} placeholder="Add Comment" />
@@ -473,22 +500,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
               {post.image && <img src={post.image} alt="post" style={{ width: '400px', height: '500px', borderRadius: '7px', cursor: 'pointer' }} onClick={() => setSelectedPost(post)} />}
 
-              {selectedPost && (
-                <PostModal
-                  post={selectedPost}
-                  onClose={() => setSelectedPost(null)}
-                  onCommentAdded={handleCommentAddedInModal}
-                  onPostDelete={handlePostDelete} // Yeni prop
-                  updatePostInFeed={updatePostInFeed} // Yeni prop
-                />
-              )}
+              {selectedPost && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} onCommentAdded={handleCommentAddedInModal} onPostDelete={handlePostDelete} updatePostInFeed={updatePostInFeed} />}
 
               <div className={styles.likeCommentBlock}>
                 <div className={styles.likeBlock}>
-                  {(() => {
-                    console.log(`Post ID: ${post._id}, likedByUser: ${post.likedByUser}`);
-                    return null;
-                  })()}
                   <img style={{ cursor: 'pointer' }} src={post.likedByUser ? liked : like} alt="like" onClick={() => handleLike(post._id)} />
 
                   <img
