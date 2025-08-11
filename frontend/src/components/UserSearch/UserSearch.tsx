@@ -2,12 +2,14 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
 import { Link } from 'react-router-dom';
+import verified from '../../assets/verified.svg'; // Mavi tik simgesini import edin
 import styles from './UserSearch.module.css';
 
 interface User {
   _id: string;
   username: string;
   avatar?: string;
+  isBlueVerified?: boolean; // isBlueVerified'ı User arayüzüne ekledik
 }
 
 export const UserSearch: React.FC = () => {
@@ -29,7 +31,8 @@ export const UserSearch: React.FC = () => {
   };
 
   React.useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('resentUsers') || '[]');
+    // LocalStorage'dan çekerken de isBlueVerified'ı doğru şekilde almasını sağlamak için User arayüzü ile uyumlu olmalı
+    const data = JSON.parse(localStorage.getItem('resentUsers') || '[]') as User[];
     setResentUsers(data);
   }, [results]);
 
@@ -47,11 +50,9 @@ export const UserSearch: React.FC = () => {
   const handleUserClick = (user: User) => {
     const resent = JSON.parse(localStorage.getItem('resentUsers') || '[]') as User[];
 
-    // Zaten varsa sil (tekrarlamasın)
     const filtered = resent.filter((u) => u._id !== user._id);
 
-    // En son tıklanan başa eklenir
-    const updated = [user, ...filtered].slice(0, 10); // Son 10'u tut
+    const updated = [user, ...filtered].slice(0, 10);
 
     localStorage.setItem('resentUsers', JSON.stringify(updated));
   };
@@ -78,7 +79,10 @@ export const UserSearch: React.FC = () => {
           <li key={user._id} className={styles.userItem}>
             <Link to={`/profile/${user._id}`} className={styles.userLink} onClick={() => handleUserClick(user)}>
               <img src={user.avatar || '/default-avatar.png'} alt={user.username} className={styles.avatar} />
-              <span className={styles.username}>{user.username}</span>
+              <div className={styles.usernameWrapper}>
+                <span className={styles.username}>{user.username}</span>
+                {user.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+              </div>
             </Link>
           </li>
         ))}
@@ -91,7 +95,10 @@ export const UserSearch: React.FC = () => {
                 <li key={user._id} className={styles.userItem}>
                   <Link to={`/profile/${user._id}`} className={styles.userLink}>
                     <img src={user.avatar || '/default-avatar.png'} alt={user.username} className={styles.avatar} />
-                    <span className={styles.username}>{user.username}</span>
+                    <div className={styles.usernameWrapper}>
+                      <span className={styles.username}>{user.username}</span>
+                      {user.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+                    </div>
                   </Link>
                 </li>
               ))}

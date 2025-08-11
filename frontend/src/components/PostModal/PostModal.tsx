@@ -5,13 +5,14 @@ import like from '../../assets/like.svg';
 import liked from '../../assets/liked.svg';
 import comment from '../../assets/comment.svg';
 import emoji from '../../assets/emoji.svg';
+import verified from '../../assets/verified.svg'; // Mavi tik simgesi eklendi
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 import styles from './PostModal.module.css';
 
 interface Comment {
   _id: string;
-  user: { username: string; avatar?: string };
+  user: { username: string; avatar?: string; isBlueVerified?: boolean }; // Mavi tik eklendi
   text: string;
 }
 
@@ -19,7 +20,7 @@ interface Post {
   _id: string;
   description: string;
   image?: string;
-  author: { username?: string; _id: string; avatar?: string };
+  author: { username?: string; _id: string; avatar?: string; isBlueVerified?: boolean }; // Mavi tik eklendi
   likesCount: number;
   likedByUser: boolean;
   comments: Comment[];
@@ -47,13 +48,12 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const navigate = useNavigate();
 
-  // Düzenleme (Edit) için yeni state'ler
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState(post.description);
 
   function handleProfileClick() {
-    onClose(); // Önce açık olan modalı kapat
-    navigate(`/profile/${post.author._id}`); // Ardından kullanıcıyı profil sayfasına yönlendir
+    onClose();
+    navigate(`/profile/${post.author._id}`);
   }
 
   async function handleDeletePost() {
@@ -69,39 +69,34 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
     }
   }
 
-  // Yeni Düzenleme İşlevi: isEditing state'ini true yapar
   function handleEditPost() {
     setIsEditing(true);
     setShowSettingsMenu(false);
   }
 
-  // Yeni Kaydetme İşlevi: API'ye PUT isteği gönderir
   async function handleSaveEdit() {
     try {
       const res = await axios.put(
         `http://localhost:3000/posts/${post._id}`,
-        { description: editedDescription }, // Yalnızca değişen veriyi gönderiyoruz
+        { description: editedDescription },
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      // Sunucudan dönen veri muhtemelen sadece description'ı içeriyor.
-      // Bu nedenle, mevcut post verisini koruyarak yeni bir obje oluşturuyoruz.
       const updatedPost = {
-        ...post, // Mevcut tüm post verisini koru
-        description: res.data.description, // Yalnızca güncellenen alanı (description) üzerine yaz
+        ...post,
+        description: res.data.description,
       };
 
-      updatePostInFeed(updatedPost); // Ana akıştaki postu güncel verilerle güncelle
-      setIsEditing(false); // Düzenleme modundan çık
+      updatePostInFeed(updatedPost);
+      setIsEditing(false);
     } catch (error) {
       console.error('Post düzenleme hatası:', error);
     }
   }
 
-  // Yeni İptal İşlevi: Düzenlemeyi iptal eder ve state'i sıfırlar
   function handleCancelEdit() {
-    setEditedDescription(post.description); // Eski açıklamaya geri döner
-    setIsEditing(false); // Düzenleme modundan çıkar
+    setEditedDescription(post.description);
+    setIsEditing(false);
   }
 
   function handleGoToPost() {
@@ -205,11 +200,12 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
                 src={post.author.avatar || '/default-avatar.png'}
                 alt="avatar"
                 className={styles.modalAvatar}
-                onClick={handleProfileClick} // <<-- Yeni Eklendi
-                style={{ cursor: 'pointer' }} // Kullanıcıya tıklanabilir olduğunu belirtmek için
+                onClick={handleProfileClick}
+                style={{ cursor: 'pointer' }}
               />
               <p className={styles.modalUsername} onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
                 {post.author.username}
+                {post.author.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />} {/* Mavi tik eklendi */}
               </p>
               <span className={styles.dot}>•</span>
               {post.author._id !== currentUserId && (
@@ -259,6 +255,7 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
               <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar}/>
               <p className={styles.modalUsername}>
                 {post.author.username}
+                {post.author.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />} {/* Mavi tik eklendi */}
               </p>
             </div>
             <span className={styles.space}></span>
@@ -288,6 +285,7 @@ export default function PostModal({ post, onClose, token, currentUserId, followe
                   <b className={styles.boldText}>
                     {' '}
                     {c.user.username}
+                    {c.user.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />} {/* Mavi tik eklendi */}
                   </b>{' '}
                   {c.text}
                 </p>

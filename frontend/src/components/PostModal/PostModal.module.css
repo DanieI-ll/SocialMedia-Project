@@ -307,3 +307,11 @@
 .editButtons button:hover {
   background-color: rgb(38, 110, 255) !important;
 }
+
+.verifiedIcon {
+  width: 17px;
+  height: 17px; 
+  margin-left: 5px;
+  margin-bottom: 2px; 
+  vertical-align: middle; 
+}

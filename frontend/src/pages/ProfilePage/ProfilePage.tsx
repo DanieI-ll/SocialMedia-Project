@@ -5,6 +5,7 @@ import styles from './ProfilePage.module.css';
 import axios from 'axios';
 import PostModal from '../../components/PostModal/PostModal';
 import websiteImg from '../../assets/website.svg';
+import verified from '../../assets/verified.svg';
 
 interface User {
   _id: string;
@@ -13,6 +14,7 @@ interface User {
   description?: string;
   website?: string;
   isFollowing?: boolean;
+  isBlueVerified?: boolean;
 }
 
 interface Post {
@@ -20,15 +22,23 @@ interface Post {
   description: string;
   image?: string;
   createdAt: string;
-  author: { username?: string; _id: string; avatar?: string }; // PostModal için gerekli
-  likesCount: number; // PostModal için gerekli
-  likedByUser: boolean; // PostModal için gerekli
-  comments: Comment[]; // PostModal için gerekli
+  author: {
+    username?: string;
+    _id: string;
+    avatar?: string;
+    isBlueVerified?: boolean;
+  };
+  likesCount: number;
+  likedByUser: boolean;
+  comments: Comment[];
 }
 
 interface Comment {
   _id: string;
-  user: { username: string };
+  user: {
+    username: string;
+    isBlueVerified?: boolean;
+  };
   text: string;
 }
 
@@ -49,8 +59,6 @@ export default function ProfilePage({ token }: { token: string | null }) {
   const [following, setFollowing] = useState<FollowUser[]>([]);
   const [myId, setMyId] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
-  // Bu state, PostModal'da kullanılacak `followedUsers` state'ini ProfilePage'de yönetir.
   const [followedUsers, setFollowedUsers] = useState<string[]>([]);
 
   function handlePostDelete(deletedPostId: string) {
@@ -80,25 +88,31 @@ export default function ProfilePage({ token }: { token: string | null }) {
         const [userRes, postsRes, followersRes, followingRes, myProfileRes] = await Promise.all([axios.get(`http://localhost:3000/api/profile/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/posts/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/followers/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get(`http://localhost:3000/following/${userId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get('http://localhost:3000/following/me', { headers: { Authorization: `Bearer ${token}` } })]);
 
         setUser(userRes.data);
-        setPosts(postsRes.data);
         setFollowers(followersRes.data.followers || []);
         setFollowing(followingRes.data.following);
         setFollowedUsers(myProfileRes.data.following.map((f: FollowingWrapper) => f.following._id));
 
-        const commentsPromises = postsRes.data.map((post: Post) =>
-          axios
-            .get<Comment[]>(`http://localhost:3000/comments/${post._id}`)
-            .then((res) => ({ postId: post._id, comments: res.data }))
-            .catch(() => ({ postId: post._id, comments: [] })),
-        );
-        const commentsResults = await Promise.all(commentsPromises);
+        const postsWithCommentsAndAuthorDetails = await Promise.all(
+          postsRes.data.map(async (post: Post) => {
+            const commentsRes = await axios.get<Comment[]>(`http://localhost:3000/comments/${post._id}`, { headers: { Authorization: `Bearer ${token}` } });
 
-        setPosts((prevPosts) =>
-          prevPosts.map((post) => {
-            const found = commentsResults.find((c) => c.postId === post._id);
-            return found ? { ...post, comments: found.comments } : post;
+            // Post yazarının bilgilerini, çekilen user verisinden alıp ekliyoruz.
+            // Bu sayede isBlueVerified bilgisi de post objesine eklenmiş oluyor.
+            const postAuthor = {
+              username: userRes.data.username,
+              _id: userRes.data._id,
+              avatar: userRes.data.avatar,
+              isBlueVerified: userRes.data.isBlueVerified,
+            };
+
+            return {
+              ...post,
+              author: postAuthor,
+              comments: commentsRes.data,
+            };
           }),
         );
+        setPosts(postsWithCommentsAndAuthorDetails);
       } catch (err) {
         setError('Ошибка загрузки данных профиля');
         console.error(err);
@@ -151,10 +165,9 @@ export default function ProfilePage({ token }: { token: string | null }) {
   async function handlePostClick(postToOpen: Post) {
     if (!token) return;
     try {
-      // API'dan post'un güncel verilerini çek
+      // http://localhost:3000/posts/:postId rotasından,
+      // yazarın isBlueVerified bilgisini de içeren post verisini çekiyoruz.
       const postWithDetails = await axios.get(`http://localhost:3000/posts/${postToOpen._id}`, { headers: { Authorization: `Bearer ${token}` } });
-
-      // Modal için selectedPost'u güncel verilerle ayarla
       setSelectedPost(postWithDetails.data);
     } catch (error) {
       console.error('Post verisi çekilirken hata:', error);
@@ -172,7 +185,10 @@ export default function ProfilePage({ token }: { token: string | null }) {
 
         <div>
           <div className={styles.container}>
-            <h2 className={styles.username}>{user.username}</h2>
+            <h2 className={styles.username}>
+              {user.username}
+              {user.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+            </h2>
             {isOwnProfile ? (
               <div className={styles.buttonsFlex}>
                 <Link to="/edit-profile" className={styles.link}>
@@ -222,18 +238,7 @@ export default function ProfilePage({ token }: { token: string | null }) {
         ))}
       </div>
 
-      {selectedPost && token && myId && (
-        <PostModal
-          post={selectedPost}
-          onClose={() => setSelectedPost(null)}
-          token={token}
-          currentUserId={myId}
-          followedUsers={followedUsers}
-          setFollowedUsers={setFollowedUsers}
-          updatePostInFeed={handleUpdatePost}
-          onPostDelete={handlePostDelete} // Bu satırı ekledik
-        />
-      )}
+      {selectedPost && token && myId && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} token={token} currentUserId={myId} followedUsers={followedUsers} setFollowedUsers={setFollowedUsers} updatePostInFeed={handleUpdatePost} onPostDelete={handlePostDelete} />}
     </div>
   );
 }

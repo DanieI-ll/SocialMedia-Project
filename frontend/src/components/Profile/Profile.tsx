@@ -3,27 +3,30 @@ import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext/AuthContext';
 import { Link } from 'react-router-dom';
 import websiteImg from '../../assets/website.svg';
+import verified from '../../assets/verified.svg'; // Yeni: Mavi tik simgesini import ettik
 
 import styles from './Profile.module.css';
 import PostModal from '../PostModal/PostModal'; // PostModal'ı import edin
 
-// Bu arayüzleri PostModal'ın ihtiyaçlarına göre genişletiyoruz
 interface Comment {
   _id: string;
-  user: { username: string };
+  user: {
+    username: string;
+    isBlueVerified?: boolean; // Yeni: Yorum yapan kullanıcının mavi tik durumu
+  };
   text: string;
 }
 
-// Post arayüzünü bu şekilde güncelleyin
 interface Post {
   _id: string;
   description: string;
   image?: string;
   createdAt: string;
   author: {
-    username?: string; // Burayı güncelledik
+    username?: string;
     _id: string;
     avatar?: string;
+    isBlueVerified?: boolean; // Yeni: Post yazarının mavi tik durumu
   };
   likesCount: number;
   likedByUser: boolean;
@@ -57,6 +60,7 @@ interface User {
   posts: Post[];
   description?: string;
   website?: string;
+  isBlueVerified?: boolean; // Yeni: Kullanıcının mavi tik durumu
 }
 
 interface ProfileProps {
@@ -75,7 +79,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const [error, setError] = useState('');
   const [myId, setMyId] = useState<string | null>(null);
   const [followedUsers, setFollowedUsers] = useState<string[]>([]);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Modal için post state'i
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -91,15 +95,12 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
     async function fetchData() {
       try {
-        // 1. Adım: Profil verisini çekin
-        const url = isOwnProfile ? 'http://localhost:3000/api/profile/me' : `http://localhost:3000/api/profile/${userId}`;
+        const url = isOwnProfile ? 'http://localhost:3000/api/profile/me' : `http://localhost:3000/api/users/${userId}`; // URL'yi düzelttik
         const profileRes = await axios.get<User>(url, { headers: { Authorization: `Bearer ${token}` } });
         const profileId = profileRes.data._id;
 
-        // 2. Adım: Diğer tüm verileri paralel olarak çekin
         const [postsRes, followersRes, followingRes, myFollowingRes] = await Promise.all([axios.get<Post[]>(`http://localhost:3000/posts/user/${profileId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get<{ count: number; followers: FollowerRelation[] }>(`http://localhost:3000/followers/${profileId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get<{ count: number; following: FollowingRelation[] }>(`http://localhost:3000/following/${profileId}`, { headers: { Authorization: `Bearer ${token}` } }), axios.get<{ following: { following: { _id: string } }[] }>('http://localhost:3000/following/me', { headers: { Authorization: `Bearer ${token}` } })]);
 
-        // Gelen verilerle state'leri güncelleyin
         setUser(profileRes.data);
         setDescription(profileRes.data.description || '');
         setWebSite(profileRes.data.website || '');
@@ -109,7 +110,6 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         setMyId(profileRes.data._id);
         setFollowedUsers(myFollowingRes.data.following.map((f) => f.following._id));
 
-        // 3. Adım: Post verilerini PostModal için gerekli bilgilerle zenginleştirin
         const postsWithDetails = await Promise.all(
           postsRes.data.map(async (post) => {
             const commentsRes = await axios.get<Comment[]>(`http://localhost:3000/comments/${post._id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -124,10 +124,12 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                 username: profileRes.data.username,
                 _id: profileRes.data._id,
                 avatar: profileRes.data.avatar,
+                isBlueVerified: profileRes.data.isBlueVerified,
               },
             };
           }),
         );
+        setPosts(postsWithDetails);
         setUser((prev) => (prev ? { ...prev, posts: postsWithDetails } : null));
       } catch (err) {
         setError('Profil verilerini yüklerken hata oluştu.');
@@ -137,26 +139,32 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
     fetchData();
   }, [token, userId, isOwnProfile]);
 
-  // Modal içindeki güncellemeleri yönetmek için bir fonksiyon
   const handleUpdatePost = (updatedPost: Post) => {
-    setUser((prevUser) => {
-      if (!prevUser) return null;
-      const updatedPosts = prevUser.posts.map((post) => (post._id === updatedPost._id ? updatedPost : post));
-      return { ...prevUser, posts: updatedPosts };
-    });
-    setSelectedPost(updatedPost);
+    setPosts((prevPosts) => prevPosts.map((post) => (post._id === updatedPost._id ? updatedPost : post)));
+    if (selectedPost && selectedPost._id === updatedPost._id) {
+      setSelectedPost(updatedPost);
+    }
   };
 
-  // Takip etme/bırakma fonksiyonu
   const handleFollow = async () => {
     if (!token || !user || !myId) return;
 
     try {
       if (followedUsers.includes(user._id)) {
         await axios.delete(`http://localhost:3000/unfollow/${user._id}`, { headers: { Authorization: `Bearer ${token}` } });
+        setFollowers((prev) => prev.filter((f) => f.follower._id !== myId));
         setFollowedUsers((prev) => prev.filter((id) => id !== user._id));
       } else {
         await axios.post(`http://localhost:3000/follow/${user._id}`, {}, { headers: { Authorization: `Bearer ${token}` } });
+        const newFollower: FollowerRelation = {
+          _id: '',
+          follower: {
+            _id: myId,
+            username: '',
+            avatar: '',
+          },
+        };
+        setFollowers((prev) => [...prev, newFollower]);
         setFollowedUsers((prev) => [...prev, user._id]);
       }
     } catch (err) {
@@ -164,7 +172,6 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
     }
   };
 
-  // Profile.tsx'in içindeki fonksiyonların olduğu yere ekleyin
   async function handlePostClick(postToOpen: Post) {
     try {
       const postWithLikes = await axios.get<Post>(`http://localhost:3000/posts/${postToOpen._id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -185,7 +192,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         </div>
         <div className={styles.mainUsernameContainer}>
           <div className={styles.usernameContainer}>
-            <h2>{user.username}</h2>
+            <h2 className={styles.username}>
+              {user.username}
+              {user.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+            </h2>
             {isOwnProfile ? (
               <Link to="/edit-profile" className={styles.link}>
                 Edit Profile
@@ -198,7 +208,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
           </div>
           <div className={styles.userInfoContainer}>
             <div className={styles.postContainer}>
-              <p className={styles.numberPost}>{user.posts.length}</p>
+              <p className={styles.numberPost}>{posts.length}</p>
               <p className={styles.postText}>posts</p>
             </div>
             <div className={styles.postContainer}>
@@ -220,10 +230,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         </div>
       </div>
       <div className={styles.postGrid}>
-        {user.posts.length === 0 ? (
+        {posts.length === 0 ? (
           <p>Посты не найдены.</p>
         ) : (
-          user.posts.map((post) => (
+          posts.map((post) => (
             <div key={post._id} onClick={() => handlePostClick(post)}>
               {post.image && <img src={post.image} alt="post" style={{ cursor: 'pointer' }} />}
             </div>
@@ -231,19 +241,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         )}
       </div>
 
-      {/* Modalı koşullu olarak render etme */}
-      {selectedPost && token && myId && (
-        <PostModal
-          post={selectedPost}
-          onClose={() => setSelectedPost(null)}
-          token={token}
-          currentUserId={myId}
-          followedUsers={followedUsers}
-          setFollowedUsers={setFollowedUsers}
-          updatePostInFeed={handleUpdatePost}
-          onPostDelete={handlePostDelete} // <- добавь сюда
-        />
-      )}
+      {selectedPost && token && myId && <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} token={token} currentUserId={myId} followedUsers={followedUsers} setFollowedUsers={setFollowedUsers} updatePostInFeed={handleUpdatePost} onPostDelete={handlePostDelete} />}
     </div>
   );
 };

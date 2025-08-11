@@ -25,15 +25,6 @@
   background-color: #0065c4 !important;
 }
 
-.username {
-  font-family: var(--font-family);
-  font-weight: 400;
-  font-size: 19px;
-  line-height: 126%;
-  color: #000;
-  margin-left: 95px;
-}
-
 .main {
   margin-left: 200px;
   margin-top: 44px;
@@ -184,4 +175,15 @@
 
 .websiteContainer:hover {
   color: #006acd !important;
+}
+
+.username {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 126%;
+  color: #000;
+  margin-left: 95px;
+  display: flex;
+  gap: 5px;
 }

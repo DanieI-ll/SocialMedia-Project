@@ -7,6 +7,7 @@ import like from '../../assets/like.svg';
 import liked from '../../assets/liked.svg';
 import comment from '../../assets/comment.svg';
 import seeAll from '../../assets/seeAll.svg';
+import verified from '../../assets/verified.svg';
 
 import emoji from '../../assets/emoji.svg';
 import Picker from '@emoji-mart/react';
@@ -16,7 +17,7 @@ import styles from './PostsFeed.module.css';
 
 interface Comment {
   _id: string;
-  user: { username: string; avatar?: string };
+  user: { username: string; avatar?: string; isBlueVerified?: boolean };
   text: string;
 }
 
@@ -24,7 +25,7 @@ interface Post {
   _id: string;
   description: string;
   image?: string;
-  author: { username?: string; _id: string; avatar?: string };
+  author: { username?: string; _id: string; avatar?: string; isBlueVerified?: boolean };
   likesCount: number;
   likedByUser: boolean;
   comments: Comment[];
@@ -51,7 +52,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
   const [currentUserId, setCurrentUserId] = useState('');
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
-  // const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   function timeAgo(dateString: string) {
     const now = new Date();
@@ -74,13 +74,11 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
     return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
   }
 
-  // Yeni: Post silme işlemini PostsFeed state'ine yansıtan fonksiyon
   const handlePostDelete = (deletedPostId: string) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post._id !== deletedPostId));
-    setSelectedPost(null); // Modalı kapat
+    setSelectedPost(null);
   };
 
-  // Yeni: PostModal'dan gelen güncellenmiş post verisini işleyen fonksiyon
   const updatePostInFeed = (updatedPost: Post) => {
     setPosts((prevPosts) => prevPosts.map((post) => (post._id === updatedPost._id ? updatedPost : post)));
     if (selectedPost && selectedPost._id === updatedPost._id) {
@@ -95,7 +93,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Post verisini tersine çevirerek en yeniyi en üste getirin
         const reversedPostsData = res.data.reverse();
 
         const postsData = reversedPostsData.map((post) => ({
@@ -117,7 +114,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
         const commentsResults = await Promise.all(commentsPromises);
 
-        // Yorum verilerini post'a eklerken de sıralamanın bozulmadığından emin olun
         setPosts((prevPosts) =>
           prevPosts.map((post) => {
             const found = commentsResults.find((c) => c.postId === post._id);
@@ -225,13 +221,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
 
   if (error) return <p>{error}</p>;
 
-  // Yeni PostModal bileşeni
   function PostModal({ post, onClose, onCommentAdded, onPostDelete, updatePostInFeed }: { post: Post; onClose: () => void; onCommentAdded: (newComment: Comment) => void; onPostDelete: (deletedPostId: string) => void; updatePostInFeed: (updatedPost: Post) => void }) {
     const [commentInput, setCommentInput] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showSettingsMenu, setShowSettingsMenu] = useState(false);
-
-    // DÜZENLEME İÇİN YENİ STATE'LER
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState(post.description);
 
@@ -265,25 +258,20 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
       }
     }
 
-    // YENİ DÜZENLEME İŞLEVİ
     function handleEditPost() {
       setIsEditing(true);
       setShowSettingsMenu(false);
     }
 
-    // YENİ KAYDETME İŞLEVİ
     async function handleSaveEdit() {
       try {
         const res = await axios.put(`http://localhost:3000/posts/${post._id}`, { description: editedDescription }, { headers: { Authorization: `Bearer ${token}` } });
 
-        // Sunucudan dönen yanıt, muhtemelen sadece "description" alanını içeriyor.
-        // Bu nedenle, mevcut post objesinin tüm bilgilerini koruyarak sadece "description"ı güncelleyin.
         const updatedPost = {
           ...post,
           description: res.data.description,
         };
 
-        // Ana akışı ve modalın kendi state'ini güncelleyin
         updatePostInFeed(updatedPost);
         setIsEditing(false);
       } catch (error) {
@@ -291,7 +279,6 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
       }
     }
 
-    // YENİ İPTAL İŞLEVİ
     function handleCancelEdit() {
       setEditedDescription(post.description);
       setIsEditing(false);
@@ -346,6 +333,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 <p className={styles.modalUsername} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }}>
                   {post.author.username}
                 </p>
+                {post.author.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
                 <span className={styles.dot}>•</span>
                 {post.author._id !== currentUserId && (
                   <p
@@ -393,10 +381,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               <div className={styles.flexContainer}>
                 <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
                 <p className={styles.modalUsername}>{post.author.username}</p>
+                {post.author.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
               </div>
               <span className={styles.space}></span>
               <div>
-                {/* DÜZENLEME MODU KONTROLÜ */}
                 {isEditing ? (
                   <div className={styles.modalWrapperEdit}>
                     <textarea className={styles.editDescription} value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} />
@@ -419,7 +407,12 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 <div key={c._id} className={styles.commentItem}>
                   <img src={c.user.avatar || '/default-avatar.png'} alt="avatar" className={styles.commentAvatar} />
                   <p>
-                    <b className={styles.boldText}>{c.user?.username ?? 'Неизвестный'}:</b> {c.text}
+                    <b className={styles.boldText}>
+                      {c.user?.username ?? 'Неизвестный'}
+                      {c.user?.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+                      :
+                    </b>{' '}
+                    {c.text}
                   </p>
                 </div>
               ))}
@@ -456,7 +449,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 )}
                 <input style={{ border: 'none' }} type="text" value={commentInput} onChange={(e) => setCommentInput(e.target.value)} placeholder="Add Comment" />
                 <button className={styles.commentButton} type="submit">
-                  Send
+                      Send
                 </button>
               </form>
             </div>
@@ -489,9 +482,9 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
             <div key={post._id} className={styles.post}>
               <div className={styles.postData}>
                 <img src={post.author.avatar || '/default-avatar.png'} alt="Profile" className={styles.avatar} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }} />
-
                 <p className={styles.avatarUsername} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }}>
                   {post.author.username}
+                  {post.author.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
                 </p>
                 <p className={styles.postTime}>• {timeAgo(post.createdAt)} •</p>
 
@@ -526,7 +519,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               </div>
 
               <div className={styles.description}>
-                <p className={styles.author}>{post.author.username}</p>
+                <p className={styles.author}>
+                  {post.author.username}
+                  {post.author.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+                </p>
                 <p className={styles.descriptionPost}>{post.description}</p>
               </div>
 
@@ -535,7 +531,12 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                   <div>
                     {post.comments.slice(0, visibleCount).map((c) => (
                       <p key={c._id}>
-                        <b>{c.user?.username ?? 'Неизвестный'}:</b> {c.text}
+                        <b>
+                          {c.user?.username ?? 'Неизвестный'}
+                          {c.user?.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
+                          :
+                        </b>{' '}
+                        {c.text}
                       </p>
                     ))}
                   </div>

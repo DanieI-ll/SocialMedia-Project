@@ -89,3 +89,13 @@
 .userResultResent {
   margin-top: 15px;
 }
+
+.usernameWrapper {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.verifiedIcon {
+  width: 20px;
+}

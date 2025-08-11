@@ -112,3 +112,8 @@
 .websiteContainer:hover {
   color: #006acd !important;
 }
+
+.username {
+  display: flex;
+  gap: 5px;
+}
