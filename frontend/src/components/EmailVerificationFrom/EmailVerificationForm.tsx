@@ -3,6 +3,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import styles from './EmailVerificationForm.module.css';
 
+import main from '../../assets/logo.png'
+
 interface EmailVerificationFormProps {
   email: string;
   onSuccess: () => void;
@@ -24,7 +26,7 @@ export default function EmailVerificationForm({ email, onSuccess }: EmailVerific
       });
       onSuccess(); // Doğrulama başarılıysa ana sayfaya yönlendirme gibi bir işlem yap
     } catch {
-      setMessage('Doğrulama kodu hatalı veya süresi dolmuş.');
+      setMessage('Code not Valid!');
     } finally {
       setIsLoading(false);
     }
@@ -32,12 +34,15 @@ export default function EmailVerificationForm({ email, onSuccess }: EmailVerific
 
   return (
     <div className={styles.form}>
-      <h2 className={styles.title}>E-posta Doğrulama</h2>
-      <p>Kayıt olmak için e-posta adresinize gönderilen kodu girin.</p>
-      <form onSubmit={handleVerification}>
-        <input type="text" placeholder="Doğrulama Kodu" value={code} onChange={(e) => setCode(e.target.value)} required />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Doğrulanıyor...' : 'Doğrula'}
+      <div className={styles.mainLogo}>
+        <img src={main} alt="main" />
+      </div>
+      <h2 className={styles.title}>E-Mail Verification</h2>
+      <p className={styles.titleChild}>Enter the code sent to your email address to register.</p>
+      <form className={styles.formCenter} onSubmit={handleVerification}>
+        <input className={styles.inputs} type="text" placeholder="Verification code" value={code} onChange={(e) => setCode(e.target.value)} required />
+        <button className={styles.final} type="submit" disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Verify'}
         </button>
         {message && <p className={styles.error}>{message}</p>}
       </form>

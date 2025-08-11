@@ -57,7 +57,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     user.verificationCodeExpires = null;
     await user.save();
 
-    res.json({ message: 'E-posta başarıyla doğrulandı' });
+    res.json({ message: 'E-Main Verify is completed!' });
   } catch (err) {
     res.status(500).json({ message: 'Sunucu hatası' });
   }

@@ -62,7 +62,7 @@ export default function Layout({ children }: LayoutProps) {
             <p>Home</p>
           </Link>
 
-          <a className={styles.element} onClick={() => setIsSearchOpen(true)}>
+          <a className={styles.element} onClick={() => setIsSearchOpen(!isSearchOpen)}>
             <img src={isSearchOpen ? ActiveSearch : search} alt="search" />
             <p>Search</p>
           </a>
@@ -75,7 +75,7 @@ export default function Layout({ children }: LayoutProps) {
             <img src={messenger} alt="messenger" />
             <p>Messenger</p>
           </Link>
-          <a className={styles.element} onClick={() => setIsNotificationsOpen(true)}>
+          <a className={styles.element} onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}>
             <img src={isNotificationsOpen ? ActiveNotification : notification} alt="notification" />
             <p>Notification</p>
           </a>

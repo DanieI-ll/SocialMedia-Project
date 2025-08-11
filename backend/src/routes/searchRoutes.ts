@@ -9,8 +9,7 @@ router.get('/search', async (req: Request, res: Response) => {
 
   const users = await User.find({
     username: { $regex: query, $options: 'i' },
-  }).select('username name avatar');
-
+  }).select('username name avatar isBlueVerified'); // isBlueVerified eklendi
 
   res.json(users);
 });

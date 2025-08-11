@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import styles from './RegisterForm.module.css';
 
-import EmailVerificationForm from '../EmailVerificationForm/EmailVerificationForm';
+import EmailVerificationForm from '../EmailVerificationFrom/EmailVerificationForm';
 
 interface RegisterFormProps {
   onSuccess: () => void;

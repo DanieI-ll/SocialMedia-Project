@@ -38,6 +38,7 @@ export async function getUserByIdController(req: Request, res: Response) {
 
     // `select('-password')` ifadesi, şifre hariç diğer tüm alanları çekiyor.
     // Bu, `website` alanını da içerir.
+
     const user = await User.findById(userId).select('-password');
 
     if (!user) {

@@ -342,8 +342,10 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
           <div className={styles.modalSide}>
             <div className={styles.modalHeader}>
               <div className={styles.headerInfo}>
-                <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} />
-                <p className={styles.modalUsername}>{post.author.username}</p>
+                <img src={post.author.avatar || '/default-avatar.png'} alt="avatar" className={styles.modalAvatar} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }} />
+                <p className={styles.modalUsername} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }}>
+                  {post.author.username}
+                </p>
                 <span className={styles.dot}>•</span>
                 {post.author._id !== currentUserId && (
                   <p
@@ -488,7 +490,9 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
               <div className={styles.postData}>
                 <img src={post.author.avatar || '/default-avatar.png'} alt="Profile" className={styles.avatar} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }} />
 
-                <p className={styles.avatarUsername}>{post.author.username}</p>
+                <p className={styles.avatarUsername} onClick={() => navigate(`/profile/${post.author._id}`)} style={{ cursor: 'pointer' }}>
+                  {post.author.username}
+                </p>
                 <p className={styles.postTime}>• {timeAgo(post.createdAt)} •</p>
 
                 {post.author._id !== currentUserId && (

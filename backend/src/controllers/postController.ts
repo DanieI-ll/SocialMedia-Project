@@ -19,7 +19,6 @@ export const getPostsController = async (req: Request, res: Response) => {
     const posts = await getAllPosts();
     const userId = (req as any).user?.id;
 
-    // добавляем количество лайков и статус лайка пользователя
     const postsWithLikes = await Promise.all(
       posts.map(async (post: any) => {
         const likesCount = await Like.countDocuments({ post: post._id });
@@ -65,7 +64,8 @@ export const getPostByIdController = async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
 
-    const post = await Post.findById(postId).populate('author', 'username avatar');
+    // Yazar bilgilerini alırken `isBlueVerified` alanını ekledik
+    const post = await Post.findById(postId).populate('author', 'username avatar isBlueVerified');
 
     if (!post) {
       return res.status(404).json({ message: 'Post bulunamadı.' });
@@ -73,7 +73,6 @@ export const getPostByIdController = async (req: Request, res: Response) => {
 
     const likesCount = await Like.countDocuments({ post: postId });
 
-    // req nesnesine any türü atayarak user özelliğine erişiyoruz
     const userId = (req as any).user?.id;
     let likedByUser = false;
 
@@ -82,7 +81,8 @@ export const getPostByIdController = async (req: Request, res: Response) => {
       likedByUser = !!like;
     }
 
-    const comments = await Comment.find({ post: postId }).populate('user', 'username avatar');
+    // Yorum yapan kullanıcı bilgilerini alırken `isBlueVerified` alanını ekledik
+    const comments = await Comment.find({ post: postId }).populate('user', 'username avatar isBlueVerified');
 
     const postWithDetails = {
       ...post.toObject(),
