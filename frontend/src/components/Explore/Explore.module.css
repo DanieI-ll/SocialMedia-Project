@@ -9,6 +9,8 @@
 
 .postImage {
   margin-left: -50px;
+  height: 300px;
+  width: 300px;
 }
 
 .postItem {

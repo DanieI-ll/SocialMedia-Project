@@ -87,12 +87,10 @@ export const deletePostController = async (req: Request, res: Response) => {
 export const getPostByIdController = async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
-
-    // **DÜZELTİLMİŞ KOD:** isBlueVerified alanını ekledik
     const post = await Post.findById(postId).populate('author', 'username avatar isBlueVerified');
 
     if (!post) {
-      return res.status(404).json({ message: 'Post bulunamadı.' });
+      return res.status(404).json({ message: 'Post doenst exist' });
     }
 
     const likesCount = await Like.countDocuments({ post: postId });
@@ -105,7 +103,6 @@ export const getPostByIdController = async (req: Request, res: Response) => {
       likedByUser = !!like;
     }
 
-    // Yorum yapan kullanıcı bilgilerini çekerken de isBlueVerified'ı ekleyelim
     const comments = await Comment.find({ post: postId }).populate('user', 'username avatar isBlueVerified');
 
     const postWithDetails = {
@@ -117,7 +114,7 @@ export const getPostByIdController = async (req: Request, res: Response) => {
 
     res.status(200).json(postWithDetails);
   } catch (error) {
-    console.error('Post verisi çekilirken hata:', error);
-    res.status(500).json({ message: 'Sunucu hatası.' });
+    console.error('Post data error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

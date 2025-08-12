@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getMyProfile } from '../controllers/profileController'; // или profileController, если там getMyProfile
+import { getMyProfile } from '../controllers/profileController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.get('/me', authMiddleware, getMyProfile); // возвращает профиль
+router.get('/me', authMiddleware, getMyProfile);
 export default router;

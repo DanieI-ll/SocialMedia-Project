@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from './Notifications.module.css';
+import verified from '../../assets/verified.svg';
 
 interface Notification {
   _id: string;
   type: 'like' | 'comment' | 'follow';
-  fromUser: { username: string; avatar?: string };
+  fromUser: { username: string; avatar?: string; isBlueVerified?: boolean };
   postId?: { description: string; image?: string };
   createdAt: string;
   read: boolean;
@@ -88,7 +89,11 @@ export default function Notifications() {
               <img src={n.fromUser.avatar || '/default-avatar.png'} alt={n.fromUser.username} className={styles.avatar} />
               <div className={styles.content}>
                 <p className={styles.lineBlock}>
-                  <strong className={styles.username}>{n.fromUser.username}</strong> {getMessage(n)}
+                  <strong className={styles.username}>
+                    {n.fromUser.username}
+                    {n.fromUser.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />} {/* <-- Mavi tik simgesini buraya ekledik */}
+                  </strong>{' '}
+                  {getMessage(n)}
                   <span className={styles.date}>{timeAgo(n.createdAt)}</span>
                 </p>
               </div>

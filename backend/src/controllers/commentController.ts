@@ -5,7 +5,7 @@ export const addCommentController = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
     const { postId, text } = req.body;
-    if (!postId || !text) return res.status(400).json({ message: 'postId и text обязательны' });
+    if (!postId || !text) return res.status(400).json({ message: 'postId and text required' });
 
     const comment = await addComment(userId, postId, text);
     res.status(201).json(comment);

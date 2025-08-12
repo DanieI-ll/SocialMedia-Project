@@ -235,7 +235,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         ) : (
           posts.map((post) => (
             <div key={post._id} onClick={() => handlePostClick(post)}>
-              {post.image && <img src={post.image} alt="post" style={{ cursor: 'pointer' }} />}
+              {post.image && <img src={post.image} className={styles.postSize} alt="post" style={{ cursor: 'pointer' }} />}
             </div>
           ))
         )}

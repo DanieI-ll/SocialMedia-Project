@@ -7,7 +7,7 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => ({
     folder: 'avatars',
     allowed_formats: ['jpg', 'png', 'jpeg'],
-    transformation: [{ width: 1080, height: 1280, crop: 'fill' }, { quality: 'auto:good' }, { format: 'auto' }],
+    transformation: [{ width: 300, height: 300, crop: 'fill' }, { quality: 'auto:good' }, { format: 'auto' }],
   }),
 });
 

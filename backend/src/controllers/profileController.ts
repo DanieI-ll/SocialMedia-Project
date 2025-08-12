@@ -17,9 +17,8 @@ export const updateMyProfile = async (req: Request, res: Response) => {
 
     let avatar = undefined;
 
-    // Yeni dosya varsa Cloudinary URL'sini al
     if (req.file) {
-      avatar = (req.file as any).path; // multer-storage-cloudinary'den direkt URL gelir
+      avatar = (req.file as any).path;
     }
 
     const updated = await updateProfile(userId, { name, username, avatar, description, website });

@@ -117,3 +117,8 @@
   display: flex;
   gap: 5px;
 }
+
+.postSize {
+  width: 300px;
+  height: 300px;
+}

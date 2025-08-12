@@ -5,11 +5,11 @@ const router = Router();
 
 router.get('/search', async (req: Request, res: Response) => {
   const query = req.query.name?.toString() || '';
-  if (!query) return res.status(400).json({ message: 'Query не указан' });
+  if (!query) return res.status(400).json({ message: 'Query required' });
 
   const users = await User.find({
     username: { $regex: query, $options: 'i' },
-  }).select('username name avatar isBlueVerified'); // isBlueVerified eklendi
+  }).select('username name avatar isBlueVerified');
 
   res.json(users);
 });

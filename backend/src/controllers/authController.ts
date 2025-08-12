@@ -17,7 +17,7 @@ export const register = async (req: Request, res: Response) => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     user.verificationCode = code;
-    user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika geçerli
+    user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
     const transporter = nodemailer.createTransport({
@@ -43,13 +43,13 @@ export const register = async (req: Request, res: Response) => {
 export const verifyEmail = async (req: Request, res: Response) => {
   try {
     const { email, code } = req.body;
-    if (!email || !code) return res.status(400).json({ message: 'Email ve kod gerekli' });
+    if (!email || !code) return res.status(400).json({ message: 'Please enter Code!' });
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+    if (!user) return res.status(404).json({ message: 'User doenst exist' });
 
     if (user.verificationCode !== code || !user.verificationCodeExpires || user.verificationCodeExpires < new Date()) {
-      return res.status(400).json({ message: 'Doğrulama kodu hatalı veya süresi dolmuş' });
+      return res.status(400).json({ message: 'Code is not valid' });
     }
 
     user.isVerified = true;
@@ -59,14 +59,14 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
     res.json({ message: 'E-Main Verify is completed!' });
   } catch (err) {
-    res.status(500).json({ message: 'Sunucu hatası' });
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
 export const login = async (req: Request, res: Response) => {
   try {
     const { login, password } = req.body;
-    if (!login || !password) return res.status(400).json({ message: 'Введите логин/почту и пароль' });
+    if (!login || !password) return res.status(400).json({ message: 'Enter login or password!' });
 
     const token = await loginUser(login, password);
     res.json({ token });
@@ -75,7 +75,6 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// Şifre sıfırlama isteği (token üret)
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { emailOrUsername } = req.body;
@@ -84,13 +83,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Token üret
     const token = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 saat geçerli
+    user.resetPasswordExpires = new Date(Date.now() + 3600000);
     await user.save();
 
-    // Mail ayarı (örn. Gmail; kendi ayarını koy)
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
@@ -110,7 +107,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
-// Şifreyi token ile yenile (hashleme kaldırıldı, sadece test için!)
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
@@ -122,7 +118,6 @@ export const resetPassword = async (req: Request, res: Response) => {
     });
     if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
 
-    // HASHLEME YOK (sadece test amaçlı)
     user.password = newPassword;
 
     user.resetPasswordToken = null as any;

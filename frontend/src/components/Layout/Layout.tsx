@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // useLocation eklendi
+import { Link, useLocation } from 'react-router-dom';
 import Footer from '../Footer/Footer';
 import styles from './Layout.module.css';
 import navbarLogo from '../../assets/navbarLogo.png';
@@ -33,7 +33,12 @@ export default function Layout({ children }: LayoutProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  const location = useLocation(); // aktif sayfayı almak için
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const savedTheme = localStorage.getItem('isDarkMode');
+    return savedTheme ? JSON.parse(savedTheme) : false;
+  });
+
+  const location = useLocation();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -50,8 +55,18 @@ export default function Layout({ children }: LayoutProps) {
     fetchProfile();
   }, [contextToken, token]);
 
+  useEffect(() => {
+    localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+  };
+
+  const mainContainerClasses = `${styles.mainContainer} ${isDarkMode ? styles.darkMode : ''}`;
+
   return (
-    <div className={styles.mainContainer}>
+    <div className={mainContainerClasses}>
       <nav className={styles.navbar}>
         <div className={styles.imgContainer}>
           <img src={navbarLogo} alt="navbar" />
@@ -90,6 +105,13 @@ export default function Layout({ children }: LayoutProps) {
           </Link>
         </div>
 
+        {/* Tema anahtarı buraya eklendi */}
+        <label className={styles.switch}>
+          <div className={styles.switchBtn}>Alpha</div>
+          <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
+          <span className={styles.slider}></span>
+        </label>
+
         <LogoutButton />
       </nav>
 
@@ -98,7 +120,6 @@ export default function Layout({ children }: LayoutProps) {
         <Footer setIsSearchOpen={setIsSearchOpen} setIsNotificationsOpen={setIsNotificationsOpen} setIsCreateOpen={setIsCreateOpen} />
       </main>
 
-      {/* Search Modal */}
       {isSearchOpen && (
         <>
           <div className={styles.overlay} onClick={() => setIsSearchOpen(false)} />
@@ -123,7 +144,6 @@ export default function Layout({ children }: LayoutProps) {
         </>
       )}
 
-      {/* Create Post Modal */}
       {isCreateOpen && (
         <>
           <div className={styles.overlay} onClick={() => setIsCreateOpen(false)} />

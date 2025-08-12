@@ -4,7 +4,7 @@ import { toggleLike, getLikesCount } from '../services/likeService';
 export const toggleLikeController = async (req: Request, res: Response) => {
   try {
     const result = await toggleLike((req as any).user.id, req.params.postId);
-    res.json(result); // теперь возвращаем likedByUser и likesCount
+    res.json(result);
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });
   }

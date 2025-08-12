@@ -233,7 +233,7 @@ export default function ProfilePage({ token }: { token: string | null }) {
         {posts.length === 0 && <p>Нет постов</p>}
         {posts.map((post) => (
           <div key={post._id} onClick={() => handlePostClick(post)} style={{ cursor: 'pointer' }}>
-            {post.image && <img src={post.image} alt="post" />}
+            {post.image && <img className={styles.postSize} src={post.image} alt="post" />}
           </div>
         ))}
       </div>

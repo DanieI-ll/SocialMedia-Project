@@ -10,7 +10,7 @@ export const followController = async (req: Request, res: Response) => {
     const followingId = req.params.userId;
     const follow = await followUser(followerId, followingId);
 
-    const followers = await getFollowers(followingId); // güncel liste
+    const followers = await getFollowers(followingId);
     res.status(201).json({ follow, followers, isFollowing: true });
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });
@@ -23,7 +23,7 @@ export const unfollowController = async (req: Request, res: Response) => {
     const followingId = req.params.userId;
     await unfollowUser(followerId, followingId);
 
-    const followers = await getFollowers(followingId); // güncel liste
+    const followers = await getFollowers(followingId)
     res.json({ message: 'Отписано', followers, isFollowing: false });
   } catch (err) {
     res.status(400).json({ message: (err as Error).message });
@@ -56,9 +56,8 @@ export const getProfileController = async (req: Request, res: Response) => {
     const userId = req.params.id;
 
     const user = await User.findById(userId).select('username avatar description');
-    if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+    if (!user) return res.status(404).json({ message: 'User doesnt exist' });
 
-    // Проверяем подписан ли текущий пользователь на этого
     const isFollowing = await Follow.exists({ follower: myId, following: userId });
 
     res.json({

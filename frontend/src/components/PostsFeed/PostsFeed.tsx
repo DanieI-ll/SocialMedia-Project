@@ -409,8 +409,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                   <p>
                     <b className={styles.boldText}>
                       {c.user?.username ?? 'Неизвестный'}
-                      {c.user?.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
-                      :
+                      {c.user?.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}:
                     </b>{' '}
                     {c.text}
                   </p>
@@ -449,7 +448,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                 )}
                 <input style={{ border: 'none' }} type="text" value={commentInput} onChange={(e) => setCommentInput(e.target.value)} placeholder="Add Comment" />
                 <button className={styles.commentButton} type="submit">
-                      Send
+                  Send
                 </button>
               </form>
             </div>
@@ -533,8 +532,7 @@ export default function PostsFeed({ token, refresh }: PostsFeedProps) {
                       <p key={c._id}>
                         <b>
                           {c.user?.username ?? 'Неизвестный'}
-                          {c.user?.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}
-                          :
+                          {c.user?.isBlueVerified && <img src={verified} alt="Verified" className={styles.verifiedIcon} />}:
                         </b>{' '}
                         {c.text}
                       </p>

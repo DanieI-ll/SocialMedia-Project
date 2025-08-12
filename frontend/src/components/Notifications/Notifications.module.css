@@ -87,8 +87,8 @@
   height: 18px !important;
   color: grey;
   position: absolute;
-  right: 40px;
-  margin-bottom: 40px;
+  right: 30px;
+  margin-bottom: 50px;
 }
 
 .username {
@@ -97,8 +97,15 @@
   font-size: 14px;
   line-height: 129%;
   color: #000;
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .lineBlock {
   width: 150px;
+}
+
+.verifiedIcon {
+  width: 18px;
 }

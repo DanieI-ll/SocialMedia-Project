@@ -42,13 +42,11 @@ const userSchema = new Schema(
     description: { type: String, default: 'Hi, I am using Ichgram!' },
     website: { type: String },
 
-    // E-posta doğrulaması için isVerified alanı yerinde kalıyor
     isVerified: {
       type: Boolean,
       default: false,
     },
 
-    // YENİ: Mavi tik için isBlueVerified alanı ekledik
     isBlueVerified: {
       type: Boolean,
       default: false,
@@ -63,7 +61,7 @@ const userSchema = new Schema(
       default: null,
     },
   },
-  
+
   { versionKey: false, timestamps: true },
 );
 
@@ -79,13 +77,12 @@ interface IUser extends Document {
   website?: string;
 
   isVerified?: boolean;
-  isBlueVerified?: boolean; // Interface'e de yeni alanı ekledik
+  isBlueVerified?: boolean;
   verificationCode?: string | null;
   verificationCodeExpires?: Date | null;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// Хэшируем пароль перед сохранением
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   console.log('Hashing password:', this.password);
@@ -99,7 +96,6 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Метод сравнения пароля
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };

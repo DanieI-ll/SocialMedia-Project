@@ -16,11 +16,10 @@ export const addComment = async (userId: string, postId: string, text: string) =
       createdAt: new Date(),
     });
   }
-  
 
-  return comment.populate('user', 'username avatar');
+  return comment.populate('user', 'username avatar isBlueVerified');
 };
 
 export const getCommentsByPost = async (postId: string) => {
-  return Comment.find({ post: postId }).populate('user', 'username avatar').sort({ createdAt: -1 });
+  return Comment.find({ post: postId }).populate('user', 'username avatar isBlueVerified').sort({ createdAt: -1 });
 };
