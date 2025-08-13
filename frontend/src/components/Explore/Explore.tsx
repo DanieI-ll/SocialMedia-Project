@@ -1,4 +1,3 @@
-// Explore.tsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from './Explore.module.css';
@@ -34,18 +33,14 @@ const Explore = ({ token, currentUserId, followedUsers, setFollowedUsers }: Expl
   const [error, setError] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  // Postları rastgele sıralayan yardımcı fonksiyon
   const shufflePosts = (array: Post[]) => {
     let currentIndex = array.length,
       randomIndex;
 
-    // Kalan elemanlar varken...
     while (currentIndex !== 0) {
-      // Kalan bir eleman seçin...
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex--;
 
-      // Ve onu mevcut elemanla değiştirin.
       [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
 
@@ -59,24 +54,19 @@ const Explore = ({ token, currentUserId, followedUsers, setFollowedUsers }: Expl
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Postları rastgele sırala
         const shuffledPosts = shufflePosts(postsResponse.data);
 
-        // Her bir post için yorumları çekecek promise'leri oluşturun
-        const commentsPromises = shuffledPosts.map(
-          (post) =>
-            axios
-              .get<Comment[]>(`http://localhost:3000/comments/${post._id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-              })
-              .then((res) => ({ postId: post._id, comments: res.data }))
-              .catch(() => ({ postId: post._id, comments: [] })), // Hata durumunda boş yorum dizisi döndür
+        const commentsPromises = shuffledPosts.map((post) =>
+          axios
+            .get<Comment[]>(`http://localhost:3000/comments/${post._id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((res) => ({ postId: post._id, comments: res.data }))
+            .catch(() => ({ postId: post._id, comments: [] })),
         );
 
-        // Tüm yorum isteklerinin tamamlanmasını bekleyin
         const commentsResults = await Promise.all(commentsPromises);
 
-        // Yorum verilerini ilgili postlara ekleyin
         const postsWithComments = shuffledPosts.map((post) => {
           const foundComments = commentsResults.find((res) => res.postId === post._id);
           return {
@@ -87,7 +77,7 @@ const Explore = ({ token, currentUserId, followedUsers, setFollowedUsers }: Expl
 
         setPosts(postsWithComments);
       } catch (err) {
-        setError('Postlar veya yorumlar yüklenirken bir hata oluştu.');
+        setError('');
         console.error(err);
       } finally {
         setLoading(false);
@@ -97,7 +87,6 @@ const Explore = ({ token, currentUserId, followedUsers, setFollowedUsers }: Expl
     fetchPostsAndComments();
   }, [token]);
 
-  // Modal'ı kapatma fonksiyonu
   const handleCloseModal = () => {
     setSelectedPost(null);
   };
@@ -106,7 +95,6 @@ const Explore = ({ token, currentUserId, followedUsers, setFollowedUsers }: Expl
     setSelectedPost(post);
   };
 
-  // Post akışını güncelleyen fonksiyon
   const updatePostInFeed = (updatedPost: Post) => {
     setPosts((prevPosts) => prevPosts.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
     if (selectedPost && selectedPost._id === updatedPost._id) {
@@ -114,14 +102,13 @@ const Explore = ({ token, currentUserId, followedUsers, setFollowedUsers }: Expl
     }
   };
 
-  // Post silme işlemini yöneten fonksiyon
   const handlePostDelete = (deletedPostId: string) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post._id !== deletedPostId));
     setSelectedPost(null);
   };
 
   if (loading) {
-    return <p>Yükleniyor...</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {

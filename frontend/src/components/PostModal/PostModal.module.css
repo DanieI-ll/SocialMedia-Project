@@ -22,7 +22,7 @@
 }
 
 .modalImageWrapper {
-  flex: 2;
+  flex: 3;
   background: #000;
   display: flex;
   align-items: center;
@@ -310,8 +310,8 @@
 
 .verifiedIcon {
   width: 17px;
-  height: 17px; 
+  height: 17px;
   margin-left: 5px;
-  margin-bottom: 2px; 
-  vertical-align: middle; 
+  margin-bottom: 2px;
+  vertical-align: middle;
 }
